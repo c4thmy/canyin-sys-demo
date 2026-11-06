@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 import type { StructureView } from "../../lib/structure-view.js";
-import { ChannelPanel } from "./ChannelPanel.js";
+import { ChannelPanel } from "../channel/ChannelPanel.js";
 import { RegionPanel } from "./RegionPanel.js";
 import { SameNewPanel } from "./SameNewPanel.js";
 import { StorePanel } from "./StorePanel.js";
@@ -119,7 +119,16 @@ export function StructureBoard({ view }: { view: StructureView }) {
         className="focus-visible:outline-none"
       >
         {active === "split" ? <SameNewPanel view={view} /> : null}
-        {active === "channel" ? <ChannelPanel view={view} /> : null}
+        {active === "channel" ? (
+          <ChannelPanel
+            rows={view.channels}
+            unit={view.unit}
+            totalCurrent={view.channelTotal.current}
+            totalPrevious={view.channelTotal.previous}
+            storeTotal={view.split.total.current}
+            description={`${view.counts.channels} 个渠道 · 可点击「本期收入」或「同比差额」表头切换排序 · 条形图与表格顺序同步`}
+          />
+        ) : null}
         {active === "region" ? <RegionPanel regions={view.regions} unit={view.unit} /> : null}
         {active === "store" ? <StorePanel stores={view.stores} unit={view.unit} /> : null}
       </div>

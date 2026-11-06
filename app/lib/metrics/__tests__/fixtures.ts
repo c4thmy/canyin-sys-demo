@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 
 import type {
+  AcquisitionRecord,
+  Bundle,
   Category,
   Channel,
   FunnelCounts,
@@ -70,6 +72,23 @@ interface RawTimeSlot {
   readonly traffic: Record<string, number>;
 }
 
+interface RawAcquisition {
+  readonly channel: string;
+  readonly new_customers: number;
+  readonly ticket: number;
+  readonly gross_margin_rate: number;
+  readonly new_customer_cost: number;
+  readonly target_roi: number;
+}
+
+interface RawBundle {
+  readonly id: string;
+  readonly name: string;
+  readonly qty: Record<string, number | null>;
+  readonly amount: Record<string, number | null>;
+  readonly discount?: Record<string, number | null>;
+}
+
 /** data/seed 目录（从 app/lib/metrics/__tests__/ 回溯到仓库根） */
 const SEED_DIR = new URL("../../../../data/seed/", import.meta.url);
 
@@ -88,6 +107,8 @@ const rawFunnel = readSeed<RawFunnelRecord>("funnel.json");
 const rawPnl = readSeed<RawPnlItem>("pnl.json");
 const rawTraffic = readSeed<RawTraffic>("traffic.json");
 const rawTimeSlots = readSeed<RawTimeSlot>("time_slots.json");
+const rawAcquisition = readSeed<RawAcquisition>("acquisition.json");
+const rawBundles = readSeed<RawBundle>("bundles.json");
 
 /** 15 家门店（含 2 家新店） */
 export const stores: readonly Store[] = rawStores.map((item) => ({
@@ -174,4 +195,32 @@ export function sumFunnel(records: readonly FunnelCounts[]): FunnelCounts {
     payments: add((record) => record.payments),
     consumers: add((record) => record.consumers),
   };
+}
+
+/** 2 个渠道的新客获取预算与目标（表8） */
+export const acquisitions: readonly AcquisitionRecord[] = rawAcquisition.map((item) => ({
+  channel: item.channel,
+  newCustomers: item.new_customers,
+  ticket: item.ticket,
+  grossMarginRate: item.gross_margin_rate,
+  newCustomerCost: item.new_customer_cost,
+  targetRoi: item.target_roi,
+}));
+
+/** 31 个线上套餐（表4），其中 11 个两期都有数据 */
+export const bundles: readonly Bundle[] = rawBundles.map((item) => ({
+  id: item.id,
+  name: item.name,
+  qty: item.qty,
+  amount: item.amount,
+  discount: item.discount,
+}));
+
+/** 按套餐编号取套餐 */
+export function bundleById(id: string): Bundle {
+  const bundle = bundles.find((item) => item.id === id);
+  if (!bundle) {
+    throw new Error(`bundles.json 中找不到套餐 ${id}`);
+  }
+  return bundle;
 }

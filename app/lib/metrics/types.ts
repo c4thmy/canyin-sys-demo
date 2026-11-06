@@ -360,3 +360,136 @@ export interface RegionStructure {
   readonly share: number;
   readonly stores: readonly StoreStructureRow[];
 }
+
+/** 可空的分期间数值：源表未填记为 null（如 2024 年才上架 / 已下架的套餐） */
+export type NullableNumberByPeriod = Readonly<Record<string, number | null | undefined>>;
+
+/**
+ * 新客获取记录（表8《增收提价的预算&目标》）。
+ * 人数单位：人；金额单位：元；比率为 0–1 小数。
+ * 注意：这是预算与目标值，不是当期实际值。
+ */
+export interface AcquisitionRecord {
+  readonly channel: string;
+  /** 新客量（人） */
+  readonly newCustomers: number;
+  /** 客单价（元/人） */
+  readonly ticket: number;
+  /** 毛利率（0–1） */
+  readonly grossMarginRate: number;
+  /** 新客成本（元/人） */
+  readonly newCustomerCost: number;
+  /** 目标 ROI（产投比目标线） */
+  readonly targetRoi: number;
+}
+
+/** 产投比达标判定：met 达标且有余量 / tight 刚好达标（余量不足 5%）/ short 未达标 */
+export type AcquisitionStatus = "met" | "tight" | "short";
+
+/**
+ * 新客获取健康度。
+ * 金额单位统一换算为万元（与收入口径一致），产投比为无量纲比值。
+ */
+export interface AcquisitionRow {
+  readonly channel: string;
+  readonly newCustomers: number;
+  readonly ticket: number;
+  readonly grossMarginRate: number;
+  readonly newCustomerCost: number;
+  /** 收入（万元）= 新客量 × 客单价 ÷ 10000 */
+  readonly revenue: number;
+  /** 毛利额（万元）= 收入 × 毛利率 */
+  readonly grossProfit: number;
+  /** 投入成本（万元）= 新客量 × 新客成本 ÷ 10000 */
+  readonly spend: number;
+  /** 产投比 = 毛利额 ÷ 投入成本；投入为 0 时为 null */
+  readonly outputRatio: number | null;
+  readonly targetRoi: number;
+  /** 目标差 = 产投比 − 目标 ROI */
+  readonly targetGap: number | null;
+  /** 目标差率 = 目标差 ÷ 目标 ROI；目标 ROI ≤ 0 时为 null */
+  readonly targetGapRate: number | null;
+  /** 是否达标：产投比 ≥ 目标 ROI（含浮点容差） */
+  readonly meetsTarget: boolean;
+  readonly status: AcquisitionStatus;
+}
+
+/** 渠道同比表：行按同比差额降序，total 为全部渠道合计 */
+export interface ChannelRevenueTable {
+  readonly rows: readonly AggregateGroup[];
+  readonly total: {
+    readonly current: number;
+    readonly previous: number;
+    readonly delta: number;
+    readonly deltaRate: number | null;
+  };
+}
+
+/** 套餐（表4）；数量单位份，销售额与优惠额单位元 */
+export interface Bundle {
+  readonly id: string;
+  readonly name: string;
+  readonly qty: NullableNumberByPeriod;
+  readonly amount: NullableNumberByPeriod;
+  readonly discount?: NullableNumberByPeriod;
+}
+
+/** 套餐类型：引流款（活动价套餐）/ 正价套餐 */
+export type BundleKind = "leadgen" | "regular";
+
+/** 系列销量结构行（不做量价分解，故不输出 2024 收入与 2024 单价） */
+export interface CategoryMixRow {
+  readonly id?: string;
+  readonly name: string;
+  readonly qtyPrevious: number;
+  readonly qtyCurrent: number;
+  readonly qtyDelta: number;
+  /** 上期销量为 0 时为 null */
+  readonly qtyDeltaRate: number | null;
+  /** 本期平均单价（元/份）；源表缺失时为 null */
+  readonly unitPriceCurrent: number | null;
+  readonly revenueCurrent: number;
+  /** 本期收入占全部系列本期收入的比重 */
+  readonly share: number;
+}
+
+/** 套餐量价分解行；金额单位元（沿用源表），数量单位份 */
+export interface BundleDecompositionRow {
+  readonly id: string;
+  readonly name: string;
+  readonly kind: BundleKind;
+  readonly qtyPrevious: number;
+  readonly qtyCurrent: number;
+  readonly qtyDelta: number;
+  readonly qtyDeltaRate: number | null;
+  readonly amountPrevious: number;
+  readonly amountCurrent: number;
+  /** 单价（元/份）= 销售额 ÷ 销量 */
+  readonly pricePrevious: number;
+  readonly priceCurrent: number;
+  readonly priceDelta: number;
+  readonly priceDeltaRate: number | null;
+  /** 销量影响（元）= (qty1 − qty0) × price0 */
+  readonly qtyEffect: number;
+  /** 单价影响（元）= qty1 × (price1 − price0) */
+  readonly priceEffect: number;
+  /** 收入差（元）= amountCurrent − amountPrevious，等于两项影响之和 */
+  readonly amountDelta: number;
+  /** 优惠率 = 本期优惠额 ÷ 本期销售额；无优惠数据或销售额为 0 时为 null */
+  readonly discountRate: number | null;
+}
+
+/** 套餐类型汇总：用于回答「增量主要来自引流款还是正价套餐」 */
+export interface BundleKindSummary {
+  readonly kind: BundleKind;
+  readonly count: number;
+  readonly amountDelta: number;
+  /** 占全部可比套餐收入差合计的比重；合计为 0 时为 null */
+  readonly share: number | null;
+}
+
+/** 漏斗汇总：四级人数与三级转化率 */
+export interface FunnelSummary {
+  readonly counts: FunnelCounts;
+  readonly rates: FunnelRates;
+}

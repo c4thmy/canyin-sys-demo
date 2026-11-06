@@ -30,3 +30,16 @@ export function resolvePeriodPair(period: PeriodInput): PeriodPair {
 export function amountFor(values: Readonly<Record<string, number>>, period: string): number {
   return values[period] ?? 0;
 }
+
+/**
+ * 读取某期间的可空数值：缺失与 null 都返回 null。
+ * 与 amountFor 的区别是「没有数据」不等于「0」——套餐的单期缺失、系列缺失的 2024 单价
+ * 必须在计算前被识别出来，不能当成 0 参与分解。
+ */
+export function optionalAmountFor(
+  values: Readonly<Record<string, number | null | undefined>>,
+  period: string,
+): number | null {
+  const value = values[period];
+  return value === undefined || value === null ? null : value;
+}

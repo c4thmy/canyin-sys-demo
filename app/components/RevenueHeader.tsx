@@ -8,6 +8,8 @@ const NAV = [
   { key: "overview", href: "/", label: "经营总览" },
   { key: "structure", href: "/revenue/structure", label: "收入结构" },
   { key: "same-store", href: "/revenue/same-store", label: "同店异动" },
+  { key: "channel", href: "/revenue/channel", label: "渠道下钻" },
+  { key: "product", href: "/revenue/product", label: "产品下钻" },
 ] as const;
 
 export type RevenueNavKey = (typeof NAV)[number]["key"];
@@ -71,7 +73,7 @@ export function RevenueHeader({
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
                     className={[
-                      "rounded-full border px-4 py-1.5 text-sm font-medium transition",
+                      "rounded-full border px-3 py-1.5 text-[13px] font-medium transition lg:px-3.5",
                       isActive
                         ? "border-teal-300/60 bg-teal-400/15 text-teal-200"
                         : "border-white/10 text-slate-300 hover:border-white/25 hover:text-white",

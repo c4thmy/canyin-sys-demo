@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 
 import { formatAmount, formatPercent, formatSignedAmount, formatSignedPercent } from "../../lib/format.js";
 import type { AggregateGroup } from "../../lib/metrics/types.js";
-import type { StructureView } from "../../lib/structure-view.js";
 import { DeltaValue } from "../DeltaValue.js";
 import { Panel } from "../Panel.js";
 
@@ -51,8 +50,33 @@ function SortableHeader({
   );
 }
 
-export function ChannelPanel({ view }: { view: StructureView }) {
-  const [sortKey, setSortKey] = useState<SortKey>("revenue");
+/**
+ * 渠道收入表 + 同比差额条形图。
+ *
+ * - 收入结构页与渠道页共用：前者默认按本期收入排序，后者默认按同比差额排序；
+ * - 条形图与表格顺序同步，长度按差额绝对值归一到半轴；
+ * - storeTotal 传入时额外给出口径尾差说明（渠道表合计 vs 门店表合计）。
+ */
+export function ChannelPanel({
+  rows,
+  unit,
+  totalCurrent,
+  totalPrevious,
+  storeTotal,
+  defaultSortKey = "revenue",
+  title = "渠道收入结构",
+  description,
+}: {
+  rows: readonly AggregateGroup[];
+  unit: string;
+  totalCurrent: number;
+  totalPrevious: number;
+  storeTotal?: number;
+  defaultSortKey?: SortKey;
+  title?: string;
+  description?: string;
+}) {
+  const [sortKey, setSortKey] = useState<SortKey>(defaultSortKey);
   const [direction, setDirection] = useState<SortDirection>("desc");
 
   const onSort = (key: SortKey): void => {
@@ -67,28 +91,31 @@ export function ChannelPanel({ view }: { view: StructureView }) {
   const sorted = useMemo(() => {
     const valueOf = (group: AggregateGroup): number =>
       sortKey === "revenue" ? group.revenue : group.delta;
-    return [...view.channels].sort((a, b) => {
+    return [...rows].sort((a, b) => {
       const diff = valueOf(a) - valueOf(b);
       return (direction === "desc" ? -diff : diff) || a.key.localeCompare(b.key, "zh-Hans-CN");
     });
-  }, [view.channels, sortKey, direction]);
+  }, [rows, sortKey, direction]);
 
-  const maxAbsDelta = Math.max(...view.channels.map((group) => Math.abs(group.delta)), 0.01);
-  const { current: totalCurrent, previous: totalPrevious } = view.channelTotal;
+  const maxAbsDelta = Math.max(...rows.map((group) => Math.abs(group.delta)), 0.01);
+  const totalDelta = totalCurrent - totalPrevious;
 
   return (
     <Panel
-      title="渠道收入结构"
-      description={`${view.counts.channels} 个渠道 · 可点击「本期收入」或「同比差额」表头切换排序 · 条形图与表格顺序同步`}
+      title={title}
+      description={
+        description ??
+        `${rows.length} 个渠道 · 可点击「本期收入」或「同比差额」表头切换排序 · 条形图与表格顺序同步`
+      }
       actions={
         <span className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-sm text-slate-600 tabular-nums">
-          本期合计 {formatAmount(totalCurrent)} 万元
+          本期合计 {formatAmount(totalCurrent)} {unit}
         </span>
       }
     >
       <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 lg:p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-medium text-slate-600">渠道同比差额 · 横向条形（万元）</h3>
+          <h3 className="text-sm font-medium text-slate-600">渠道同比差额 · 横向条形（{unit}）</h3>
           <p className="text-xs text-slate-400">
             <span className="text-emerald-600">■</span> 增长
             <span className="ml-3 text-rose-600">■</span> 下降 · 长度按差额绝对值归一
@@ -140,12 +167,12 @@ export function ChannelPanel({ view }: { view: StructureView }) {
 
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
-          <caption className="sr-only">{view.counts.channels} 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
+          <caption className="sr-only">{rows.length} 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
           <thead>
             <tr className="border-b border-slate-200 text-sm text-slate-500">
               <th scope="col" className="py-3 pr-4 text-left font-medium">渠道</th>
               <SortableHeader
-                label={`本期收入（${view.unit}）`}
+                label={`本期收入（${unit}）`}
                 sortKey="revenue"
                 activeKey={sortKey}
                 direction={direction}
@@ -201,13 +228,13 @@ export function ChannelPanel({ view }: { view: StructureView }) {
                 {formatAmount(totalPrevious)}
               </td>
               <td className="px-4 py-3.5 text-right">
-                <DeltaValue value={totalCurrent - totalPrevious} text={formatSignedAmount(totalCurrent - totalPrevious)} />
+                <DeltaValue value={totalDelta} text={formatSignedAmount(totalDelta)} />
               </td>
               <td className="px-4 py-3.5 text-right">
                 <DeltaValue
-                  value={totalCurrent - totalPrevious}
+                  value={totalDelta}
                   text={formatSignedPercent(
-                    totalPrevious === 0 ? null : (totalCurrent - totalPrevious) / totalPrevious,
+                    totalPrevious === 0 ? null : totalDelta / totalPrevious,
                   )}
                 />
               </td>
@@ -217,10 +244,12 @@ export function ChannelPanel({ view }: { view: StructureView }) {
         </table>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-500">
-        渠道口径合计 {formatAmount(totalCurrent)} 万元，与门店口径 {formatAmount(view.split.total.current)} 万元相差{' '}
-        {formatAmount(Math.abs(view.split.total.current - totalCurrent))} 万元，为源表四舍五入。
-      </p>
+      {storeTotal === undefined ? null : (
+        <p className="mt-4 text-sm leading-6 text-slate-500">
+          渠道口径合计 {formatAmount(totalCurrent)} 万元，与门店口径 {formatAmount(storeTotal)} 万元相差{' '}
+          {formatAmount(Math.abs(storeTotal - totalCurrent))} 万元，为源表四舍五入。
+        </p>
+      )}
     </Panel>
   );
 }
