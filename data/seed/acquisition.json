@@ -1,0 +1,41 @@
+{
+  "provenance": {
+    "sheet": "第二步-收入异动分析",
+    "range": "B117:M121",
+    "note": "C/D/E/G/I/M 为 Excel 原值（预算与目标），其余按表内公式推算；金额单位万元"
+  },
+  "items": [
+    {
+      "channel": "大众点评",
+      "new_customers": 820.0,
+      "exposure_conversion": 0.015,
+      "ticket": 100.0,
+      "gross_margin_rate": 0.6,
+      "new_customer_cost": 30.0,
+      "target_roi": 2.0,
+      "revenue": 8.2,
+      "gross_profit": 4.92,
+      "spend": 2.46,
+      "output_ratio": 2.0,
+      "actual_roi": 3.3333,
+      "meets_target": true,
+      "derived": "收入=新客量×客单价；毛利额=收入×毛利率；投入=新客量×新客成本；产投比=毛利额÷投入；实际ROI=收入÷投入"
+    },
+    {
+      "channel": "外卖",
+      "new_customers": 1000.0,
+      "exposure_conversion": 0.014,
+      "ticket": 40.0,
+      "gross_margin_rate": 0.6,
+      "new_customer_cost": 20.0,
+      "target_roi": 1.0,
+      "revenue": 4.0,
+      "gross_profit": 2.4,
+      "spend": 2.0,
+      "output_ratio": 1.2,
+      "actual_roi": 2.0,
+      "meets_target": true,
+      "derived": "收入=新客量×客单价；毛利额=收入×毛利率；投入=新客量×新客成本；产投比=毛利额÷投入；实际ROI=收入÷投入"
+    }
+  ]
+}

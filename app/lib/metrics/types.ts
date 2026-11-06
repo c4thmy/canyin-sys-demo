@@ -225,3 +225,138 @@ export interface ProfitBridgeNode {
   readonly cumulative: number;
   readonly kind: ProfitBridgeKind;
 }
+
+/** 门店客流与客单价（表6）。客流单位：人次/月；客单价单位：元/人次 */
+export interface StoreTrafficRecord {
+  readonly storeId: string;
+  readonly name: string;
+  readonly traffic: NumberByPeriod;
+  readonly ticket: NumberByPeriod;
+}
+
+/** 分时段日均客流（表7）。客流单位：人次/日 */
+export interface TimeSlotRecord {
+  readonly dayType: string;
+  readonly segment: string;
+  readonly span: string;
+  readonly traffic: NumberByPeriod;
+}
+
+/**
+ * 单店客流 × 客单价分解行。
+ * 客流为人次、客单价为元/人次，两项影响额统一换算为万元（÷10000）。
+ */
+export interface StoreTrafficRow {
+  readonly storeId: string;
+  readonly name: string;
+  readonly region: string;
+  readonly isNew: boolean;
+  /** 是否有可比的上年同期（新店为 false） */
+  readonly hasPrevious: boolean;
+  readonly trafficPrevious: number;
+  readonly trafficCurrent: number;
+  readonly trafficDelta: number;
+  /** 上期客流为 0 时为 null */
+  readonly trafficDeltaRate: number | null;
+  readonly ticketPrevious: number;
+  readonly ticketCurrent: number;
+  readonly ticketDelta: number;
+  /** 上期客单价为 0 时为 null */
+  readonly ticketDeltaRate: number | null;
+  /** 客流影响（万元）= 客流差 × 上期客单价 ÷ 10000 */
+  readonly trafficEffect: number;
+  /** 客单价影响（万元）= 本期客流 × 客单价差 ÷ 10000 */
+  readonly ticketEffect: number;
+  /** 两项影响合计（万元） */
+  readonly effectTotal: number;
+  readonly revenuePrevious: number;
+  readonly revenueCurrent: number;
+  readonly revenueDelta: number;
+  readonly revenueDeltaRate: number | null;
+}
+
+/** 同店整体汇总；客单价为按客流加权平均（元/人次），影响额单位为万元 */
+export interface SameStoreSummary {
+  readonly sameStoreCount: number;
+  readonly trafficPrevious: number;
+  readonly trafficCurrent: number;
+  readonly trafficDelta: number;
+  readonly trafficDeltaRate: number | null;
+  readonly ticketPrevious: number;
+  readonly ticketCurrent: number;
+  readonly ticketDelta: number;
+  readonly ticketDeltaRate: number | null;
+  readonly trafficEffect: number;
+  readonly ticketEffect: number;
+  readonly effectTotal: number;
+  readonly revenuePrevious: number;
+  readonly revenueCurrent: number;
+  readonly revenueDelta: number;
+  readonly revenueDeltaRate: number | null;
+  /** 同店收入同比差额 − 两项影响合计；来自源表取整，正常应在 0 附近 */
+  readonly reconciliationGap: number;
+}
+
+/** 单个时段的客流同比 */
+export interface TimeSlotComparison {
+  readonly dayType: string;
+  readonly segment: string;
+  readonly span: string;
+  readonly previous: number;
+  readonly current: number;
+  readonly delta: number;
+  readonly deltaRate: number | null;
+}
+
+/** 按工作日 / 节假日聚合的时段客流 */
+export interface TimeSlotGroup {
+  readonly dayType: string;
+  readonly slots: readonly TimeSlotComparison[];
+  readonly previous: number;
+  readonly current: number;
+  readonly delta: number;
+  readonly deltaRate: number | null;
+}
+
+/** 单店在同店群体中的横向对比基准 */
+export interface PeerBenchmark {
+  readonly sameStoreCount: number;
+  /** 同店加权平均客单价（本期，元/人次）；无同店时为 null */
+  readonly averageTicket: number | null;
+  /** 同店整体客流增速（本期 vs 上年同期）；无同店或上期为 0 时为 null */
+  readonly trafficGrowthRate: number | null;
+  /** 该店本期客单价 − 同店平均客单价（元/人次） */
+  readonly ticketGap: number | null;
+  /** 该店客流增速 − 同店整体客流增速（比率差，0.05 = 5 个百分点） */
+  readonly trafficGrowthGap: number | null;
+  /** 该店本期收入在同店中的排名（1 起）；新店不参与同店排名，返回 null */
+  readonly revenueRank: number | null;
+}
+
+/** 收入结构 · 门店行 */
+export interface StoreStructureRow {
+  readonly id: string;
+  readonly name: string;
+  readonly region: string;
+  readonly isNew: boolean;
+  readonly revenue: number;
+  readonly prevRevenue: number;
+  readonly delta: number;
+  readonly deltaRate: number | null;
+  /** 本期收入占同店收入合计的比重；新店为 null */
+  readonly sameStoreShare: number | null;
+  /** 本期收入在同店中的排名（1 起）；新店为 null */
+  readonly sameStoreRank: number | null;
+}
+
+/** 收入结构 · 区域分组（含成员门店） */
+export interface RegionStructure {
+  readonly key: string;
+  readonly revenue: number;
+  readonly prevRevenue: number;
+  readonly delta: number;
+  readonly deltaRate: number | null;
+  /** 本期收入占全部门店收入的比重 */
+  readonly share: number;
+  readonly stores: readonly StoreStructureRow[];
+}

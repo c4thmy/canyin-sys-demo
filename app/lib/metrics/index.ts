@@ -11,3 +11,11 @@ export { funnelRates } from "./funnel.js";
 export { topContributors } from "./contributors.js";
 export { channelRoi, ROI_THRESHOLDS } from "./roi.js";
 export { profitBridge } from "./profit-bridge.js";
+export { storeStructure, regionStructure } from "./structure.js";
+export {
+  decomposeStoreTraffic,
+  sameStoreRows,
+  summarizeSameStore,
+  timeSlotGroups,
+  peerBenchmark,
+} from "./traffic.js";

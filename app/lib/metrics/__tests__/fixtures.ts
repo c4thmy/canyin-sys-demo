@@ -6,6 +6,8 @@ import type {
   FunnelCounts,
   PnlItem,
   Store,
+  StoreTrafficRecord,
+  TimeSlotRecord,
 } from "../types.js";
 
 /**
@@ -54,6 +56,20 @@ interface RawPnlItem {
   readonly derived: string | null;
 }
 
+interface RawTraffic {
+  readonly store_id: string;
+  readonly name: string;
+  readonly traffic: Record<string, number>;
+  readonly ticket: Record<string, number>;
+}
+
+interface RawTimeSlot {
+  readonly day_type: string;
+  readonly segment: string;
+  readonly span: string;
+  readonly traffic: Record<string, number>;
+}
+
 /** data/seed 目录（从 app/lib/metrics/__tests__/ 回溯到仓库根） */
 const SEED_DIR = new URL("../../../../data/seed/", import.meta.url);
 
@@ -70,6 +86,8 @@ const rawChannels = readSeed<RawChannel>("channels.json");
 const rawCategories = readSeed<RawCategory>("categories.json");
 const rawFunnel = readSeed<RawFunnelRecord>("funnel.json");
 const rawPnl = readSeed<RawPnlItem>("pnl.json");
+const rawTraffic = readSeed<RawTraffic>("traffic.json");
+const rawTimeSlots = readSeed<RawTimeSlot>("time_slots.json");
 
 /** 15 家门店（含 2 家新店） */
 export const stores: readonly Store[] = rawStores.map((item) => ({
@@ -100,6 +118,22 @@ export const categories: readonly Category[] = rawCategories.map((item) => ({
 export const pnl: readonly PnlItem[] = rawPnl.map((item) => ({
   item: item.item,
   values: item.values,
+}));
+
+/** 15 家门店的客流与客单价（表6） */
+export const traffic: readonly StoreTrafficRecord[] = rawTraffic.map((item) => ({
+  storeId: item.store_id,
+  name: item.name,
+  traffic: item.traffic,
+  ticket: item.ticket,
+}));
+
+/** 6 个分时段客流记录（表7） */
+export const timeSlots: readonly TimeSlotRecord[] = rawTimeSlots.map((item) => ({
+  dayType: item.day_type,
+  segment: item.segment,
+  span: item.span,
+  traffic: item.traffic,
 }));
 
 /** 13 家在营门店的线上漏斗记录 */

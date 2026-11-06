@@ -1,0 +1,226 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+import { formatAmount, formatPercent, formatSignedAmount, formatSignedPercent } from "../../lib/format.js";
+import type { AggregateGroup } from "../../lib/metrics/types.js";
+import type { StructureView } from "../../lib/structure-view.js";
+import { DeltaValue } from "../DeltaValue.js";
+import { Panel } from "../Panel.js";
+
+type SortKey = "revenue" | "delta";
+type SortDirection = "desc" | "asc";
+
+function SortableHeader({
+  label,
+  sortKey,
+  activeKey,
+  direction,
+  onSort,
+  align = "right",
+}: {
+  label: string;
+  sortKey: SortKey;
+  activeKey: SortKey;
+  direction: SortDirection;
+  onSort: (key: SortKey) => void;
+  align?: "left" | "right";
+}) {
+  const active = sortKey === activeKey;
+  return (
+    <th
+      scope="col"
+      aria-sort={active ? (direction === "desc" ? "descending" : "ascending") : "none"}
+      className={`px-4 py-3 font-medium ${align === "right" ? "text-right" : "text-left"}`}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={[
+          "inline-flex items-center gap-1 rounded-sm transition",
+          align === "right" ? "justify-end" : "justify-start",
+          active ? "text-slate-900" : "text-slate-500 hover:text-slate-800",
+        ].join(" ")}
+      >
+        {label}
+        <span aria-hidden="true" className="font-mono text-xs">
+          {active ? (direction === "desc" ? "↓" : "↑") : "↕"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
+export function ChannelPanel({ view }: { view: StructureView }) {
+  const [sortKey, setSortKey] = useState<SortKey>("revenue");
+  const [direction, setDirection] = useState<SortDirection>("desc");
+
+  const onSort = (key: SortKey): void => {
+    if (key === sortKey) {
+      setDirection((current) => (current === "desc" ? "asc" : "desc"));
+      return;
+    }
+    setSortKey(key);
+    setDirection("desc");
+  };
+
+  const sorted = useMemo(() => {
+    const valueOf = (group: AggregateGroup): number =>
+      sortKey === "revenue" ? group.revenue : group.delta;
+    return [...view.channels].sort((a, b) => {
+      const diff = valueOf(a) - valueOf(b);
+      return (direction === "desc" ? -diff : diff) || a.key.localeCompare(b.key, "zh-Hans-CN");
+    });
+  }, [view.channels, sortKey, direction]);
+
+  const maxAbsDelta = Math.max(...view.channels.map((group) => Math.abs(group.delta)), 0.01);
+  const { current: totalCurrent, previous: totalPrevious } = view.channelTotal;
+
+  return (
+    <Panel
+      title="渠道收入结构"
+      description={`${view.counts.channels} 个渠道 · 可点击「本期收入」或「同比差额」表头切换排序 · 条形图与表格顺序同步`}
+      actions={
+        <span className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-sm text-slate-600 tabular-nums">
+          本期合计 {formatAmount(totalCurrent)} 万元
+        </span>
+      }
+    >
+      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 lg:p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="text-sm font-medium text-slate-600">渠道同比差额 · 横向条形（万元）</h3>
+          <p className="text-xs text-slate-400">
+            <span className="text-emerald-600">■</span> 增长
+            <span className="ml-3 text-rose-600">■</span> 下降 · 长度按差额绝对值归一
+          </p>
+        </div>
+
+        <div className="mt-4 space-y-1.5">
+          {sorted.map((group) => {
+            const ratio = Math.abs(group.delta) / maxAbsDelta;
+            const width = Math.max(0.8, ratio * 50);
+            const positive = group.delta >= 0;
+            return (
+              <div key={group.key} className="flex items-center gap-3">
+                <span className="w-28 shrink-0 truncate text-[15px] text-slate-600" title={group.key}>
+                  {group.key}
+                </span>
+                <div className="relative h-7 flex-1 overflow-hidden rounded-md border border-slate-200/70 bg-white">
+                  <span className="absolute inset-y-0 left-1/2 w-px bg-slate-300" aria-hidden="true" />
+                  <span
+                    className={[
+                      "absolute top-1/2 h-4 -translate-y-1/2",
+                      positive ? "rounded-r bg-emerald-500" : "rounded-l bg-rose-500",
+                    ].join(" ")}
+                    style={
+                      positive
+                        ? { left: "50%", width: `${width}%` }
+                        : { right: "50%", width: `${width}%` }
+                    }
+                  />
+                </div>
+                <span className="w-24 shrink-0 text-right">
+                  <DeltaValue value={group.delta} text={formatSignedAmount(group.delta)} className="text-[15px]" />
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-2 flex items-center gap-3 text-xs text-slate-400">
+          <span className="w-28 shrink-0" />
+          <div className="flex flex-1 justify-between font-mono tabular-nums">
+            <span>−{formatAmount(maxAbsDelta)}</span>
+            <span>0</span>
+            <span>+{formatAmount(maxAbsDelta)}</span>
+          </div>
+          <span className="w-24 shrink-0" />
+        </div>
+      </div>
+
+      <div className="mt-6 overflow-x-auto">
+        <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
+          <caption className="sr-only">10 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
+          <thead>
+            <tr className="border-b border-slate-200 text-sm text-slate-500">
+              <th scope="col" className="py-3 pr-4 text-left font-medium">渠道</th>
+              <SortableHeader
+                label={`本期收入（${view.unit}）`}
+                sortKey="revenue"
+                activeKey={sortKey}
+                direction={direction}
+                onSort={onSort}
+              />
+              <th scope="col" className="px-4 py-3 text-right font-medium">上期收入</th>
+              <SortableHeader
+                label="同比差额"
+                sortKey="delta"
+                activeKey={sortKey}
+                direction={direction}
+                onSort={onSort}
+              />
+              <th scope="col" className="px-4 py-3 text-right font-medium">增减率</th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">占比</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((group) => (
+              <tr
+                key={group.key}
+                className="border-b border-slate-100 transition-colors last:border-0 hover:bg-teal-50/40"
+              >
+                <th scope="row" className="py-3.5 pr-4 text-left font-medium text-slate-900">
+                  {group.key}
+                </th>
+                <td className="whitespace-nowrap px-4 py-3.5 text-right font-mono tabular-nums text-slate-900">
+                  {formatAmount(group.revenue)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-right font-mono tabular-nums text-slate-500">
+                  {formatAmount(group.prevRevenue)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-right">
+                  <DeltaValue value={group.delta} text={formatSignedAmount(group.delta)} />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-right">
+                  <DeltaValue
+                    value={group.delta}
+                    text={formatSignedPercent(group.deltaRate)}
+                  />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-right font-mono tabular-nums text-slate-600">
+                  {formatPercent(group.share)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-slate-200 font-semibold text-slate-900">
+              <th scope="row" className="py-3.5 pr-4 text-left">合计</th>
+              <td className="px-4 py-3.5 text-right font-mono tabular-nums">{formatAmount(totalCurrent)}</td>
+              <td className="px-4 py-3.5 text-right font-mono tabular-nums text-slate-500">
+                {formatAmount(totalPrevious)}
+              </td>
+              <td className="px-4 py-3.5 text-right">
+                <DeltaValue value={totalCurrent - totalPrevious} text={formatSignedAmount(totalCurrent - totalPrevious)} />
+              </td>
+              <td className="px-4 py-3.5 text-right">
+                <DeltaValue
+                  value={totalCurrent - totalPrevious}
+                  text={formatSignedPercent(
+                    totalPrevious === 0 ? null : (totalCurrent - totalPrevious) / totalPrevious,
+                  )}
+                />
+              </td>
+              <td className="px-4 py-3.5 text-right font-mono tabular-nums text-slate-500">100.00%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-slate-500">
+        渠道口径合计 {formatAmount(totalCurrent)} 万元，与门店口径 {formatAmount(view.split.total.current)} 万元相差{' '}
+        {formatAmount(Math.abs(view.split.total.current - totalCurrent))} 万元，为源表四舍五入。
+      </p>
+    </Panel>
+  );
+}

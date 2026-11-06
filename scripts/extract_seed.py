@@ -161,6 +161,52 @@ def parse_traffic(wb, stores):
     }
 
 
+def parse_acquisition(wb):
+    """表8：增收提价的预算与目标。新客获取成本、产投比、目标 ROI。"""
+    ws = wb["第二步-收入异动分析"]
+    rows = []
+    for r in (119, 120):
+        name = ws[f"B{r}"].value
+        if not name:
+            continue
+        new_customers = num(ws, f"C{r}")
+        convert = num(ws, f"D{r}")
+        ticket = num(ws, f"E{r}")
+        margin = num(ws, f"G{r}")
+        cost = num(ws, f"I{r}")
+        target_roi = num(ws, f"M{r}")
+        # Excel 未存值，按表内公式推算
+        revenue = round(new_customers * ticket / 10000, 4) if new_customers and ticket else None
+        gross = round(revenue * margin, 4) if revenue and margin else None
+        spend = round(new_customers * cost / 10000, 4) if new_customers and cost else None
+        output_ratio = round(gross / spend, 4) if gross and spend else None
+        actual_roi = round(revenue / spend, 4) if revenue and spend else None
+        rows.append({
+            "channel": str(name).strip(),
+            "new_customers": new_customers,
+            "exposure_conversion": convert,
+            "ticket": ticket,
+            "gross_margin_rate": margin,
+            "new_customer_cost": cost,
+            "target_roi": target_roi,
+            "revenue": revenue,
+            "gross_profit": gross,
+            "spend": spend,
+            "output_ratio": output_ratio,
+            "actual_roi": actual_roi,
+            "meets_target": (output_ratio >= target_roi) if (output_ratio is not None and target_roi) else None,
+            "derived": "收入=新客量×客单价；毛利额=收入×毛利率；投入=新客量×新客成本；产投比=毛利额÷投入；实际ROI=收入÷投入",
+        })
+    return {
+        "provenance": {
+            "sheet": ws.title,
+            "range": "B117:M121",
+            "note": "C/D/E/G/I/M 为 Excel 原值（预算与目标），其余按表内公式推算；金额单位万元",
+        },
+        "items": rows,
+    }
+
+
 def parse_time_slots(wb):
     """表7：客流异动下钻到时段。工作日/节假日的分时段日均客流。"""
     ws = wb["第二步-收入异动分析"]
@@ -267,9 +313,10 @@ def main():
         "funnel": parse_funnel(wb, stores["items"]),
         "traffic": parse_traffic(wb, stores["items"]),
         "time_slots": parse_time_slots(wb),
+        "acquisition": parse_acquisition(wb),
     }
 
-    for key in ("stores", "channels", "categories", "pnl", "funnel", "traffic", "time_slots"):
+    for key in ("stores", "channels", "categories", "pnl", "funnel", "traffic", "time_slots", "acquisition"):
         path = os.path.join(out, f"{key}.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload[key], f, ensure_ascii=False, indent=2)

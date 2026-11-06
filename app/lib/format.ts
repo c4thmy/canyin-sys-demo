@@ -38,3 +38,21 @@ export function formatPoints(points: number, digits = 2): string {
   const sign = points > 0 ? "+" : points < 0 ? "−" : "";
   return `${sign}${Math.abs(points).toFixed(digits)}`;
 }
+
+const integerFormatter = new Intl.NumberFormat("zh-CN", {
+  maximumFractionDigits: 0,
+});
+
+/** 整数：千分位，四舍五入到个位（用于客流人次等） */
+export function formatInteger(value: number): string {
+  return integerFormatter.format(value);
+}
+
+/** 带符号整数：正数 +，负数 −，零不带符号 */
+export function formatSignedInteger(value: number): string {
+  const rounded = Math.round(value);
+  if (rounded === 0) {
+    return integerFormatter.format(0);
+  }
+  return `${rounded > 0 ? "+" : "−"}${integerFormatter.format(Math.abs(rounded))}`;
+}
