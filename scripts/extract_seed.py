@@ -135,6 +135,55 @@ def parse_categories(wb):
     }
 
 
+def parse_traffic(wb, stores):
+    """表6：同店收入是客流原因还是客单价原因。真实客流与客单价，两期都有。"""
+    ws = wb["第二步-收入异动分析"]
+    by_name = {s["name"]: s["id"] for s in stores}
+    rows = []
+    for r in list(range(83, 96)) + [97, 98]:
+        name = ws[f"B{r}"].value
+        if not name:
+            continue
+        nm = str(name).strip()
+        rows.append({
+            "store_id": by_name.get(nm, nm),
+            "name": nm,
+            "traffic": {P_OLD: num(ws, f"F{r}"), P_NEW: num(ws, f"C{r}")},
+            "ticket": {P_OLD: num(ws, f"G{r}"), P_NEW: num(ws, f"D{r}")},
+        })
+    return {
+        "provenance": {
+            "sheet": ws.title,
+            "range": "B80:N98",
+            "note": "客流单位：人次/月；客单价单位：元/人次；收入(万元)=客流×客单价/10000",
+        },
+        "items": rows,
+    }
+
+
+def parse_time_slots(wb):
+    """表7：客流异动下钻到时段。工作日/节假日的分时段日均客流。"""
+    ws = wb["第二步-收入异动分析"]
+    slots = [
+        ("工作日", "正常段", "9:00-14:00", 106),
+        ("工作日", "正常段", "14:00-24:00", 107),
+        ("工作日", "夜宵", "24:00-5:00", 108),
+        ("节假日", "正常段", "9:00-14:00", 110),
+        ("节假日", "正常段", "14:00-24:00", 111),
+        ("节假日", "夜宵", "24:00-5:00", 112),
+    ]
+    rows = [{
+        "day_type": d,
+        "segment": seg,
+        "span": span,
+        "traffic": {P_OLD: num(ws, f"E{r}"), P_NEW: num(ws, f"F{r}")},
+    } for d, seg, span, r in slots]
+    return {
+        "provenance": {"sheet": ws.title, "range": "B103:H114", "note": "单位：人次/日（分时段日均）"},
+        "items": rows,
+    }
+
+
 def parse_pnl(wb):
     ws = wb["第一步-2509餐饮利润桥"]
     items = [
@@ -216,9 +265,11 @@ def main():
         "categories": parse_categories(wb),
         "pnl": parse_pnl(wb),
         "funnel": parse_funnel(wb, stores["items"]),
+        "traffic": parse_traffic(wb, stores["items"]),
+        "time_slots": parse_time_slots(wb),
     }
 
-    for key in ("stores", "channels", "categories", "pnl", "funnel"):
+    for key in ("stores", "channels", "categories", "pnl", "funnel", "traffic", "time_slots"):
         path = os.path.join(out, f"{key}.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload[key], f, ensure_ascii=False, indent=2)
