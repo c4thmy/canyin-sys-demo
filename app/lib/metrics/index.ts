@@ -28,3 +28,19 @@ export {
   bundleKindSummary,
   BUNDLE_LEADGEN_KEYWORDS,
 } from "./product.js";
+export { generateInsights, INSIGHT_THRESHOLDS } from "./insights.js";
+export type {
+  Action,
+  ChannelHealthFact,
+  ChannelHealthStatus,
+  Insight,
+  InsightCategory,
+  InsightEvidence,
+  InsightOrigin,
+  InsightSeverity,
+  InsightsFacts,
+  InsightsInput,
+  InsightsResult,
+  LeadgenFact,
+  ProfitDragFact,
+} from "./insights.js";

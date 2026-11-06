@@ -10,6 +10,7 @@ const NAV = [
   { key: "same-store", href: "/revenue/same-store", label: "同店异动" },
   { key: "channel", href: "/revenue/channel", label: "渠道下钻" },
   { key: "product", href: "/revenue/product", label: "产品下钻" },
+  { key: "insights", href: "/insights", label: "结论与计划" },
 ] as const;
 
 export type RevenueNavKey = (typeof NAV)[number]["key"];
