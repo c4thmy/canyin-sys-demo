@@ -38,7 +38,6 @@ export interface SameStoreView {
   readonly effects: EffectBreakdown;
   readonly timeSlots: readonly TimeSlotGroup[];
   readonly timeInsight: string;
-  readonly lastSlotSummary: string;
 }
 
 function toneOf(value: number): Tone {
@@ -138,16 +137,6 @@ function buildTimeInsight(groups: readonly TimeSlotGroup[]): string {
   return `${parts.join("；")}。`;
 }
 
-function buildLastSlotSummary(groups: readonly TimeSlotGroup[]): string {
-  return groups
-    .map(
-      (group) =>
-        `${group.dayType}日均 ${formatInteger(group.previous)} → ${formatInteger(group.current)}` +
-        `（${formatSignedInteger(group.delta)}）`,
-    )
-    .join(" · ");
-}
-
 /** 组装同店异动页：同店汇总 + 客流×客单价拆解 + 13 家同店明细 + 分时段客流 */
 export function buildSameStoreView(): SameStoreView {
   const seed = loadSeed();
@@ -186,6 +175,5 @@ export function buildSameStoreView(): SameStoreView {
     },
     timeSlots: groups,
     timeInsight: buildTimeInsight(groups),
-    lastSlotSummary: buildLastSlotSummary(groups),
   };
 }

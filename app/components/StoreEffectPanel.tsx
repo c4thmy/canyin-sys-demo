@@ -85,7 +85,7 @@ export function StoreEffectPanel({ view }: { view: StoreDetailView }) {
         </div>
         <div>
           <dt className="text-xs text-slate-500">取整差额</dt>
-          <dd className="mt-1 font-mono text-xl font-semibold text-slate-700 tabular-nums">{gapLabel}</dd>
+          <dd className="mt-1 font-mono text-xl font-semibold text-amber-700 tabular-nums">{gapLabel}</dd>
         </div>
       </dl>
 

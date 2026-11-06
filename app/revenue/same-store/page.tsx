@@ -11,7 +11,7 @@ import { loadSeed } from "../../lib/seed.js";
 
 export const metadata: Metadata = {
   title: "同店异动 · 餐饮经营分析",
-  description: "把同店收入变化拆成客流与客单价两个因素，并下钻到 13 家同店与分时段客流。",
+  description: "把同店收入变化拆成客流与客单价两个因素，并下钻到同店与分时段客流。",
 };
 
 export default function Page() {

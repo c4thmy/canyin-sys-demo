@@ -38,9 +38,9 @@ export function StructureBoard({ view }: { view: StructureView }) {
 
   const tabs: readonly (TabDefinition & { count: number })[] = [
     { key: "split", label: "同店/新店", hint: "经营增量与开店增量", count: view.counts.total },
-    { key: "channel", label: "渠道", hint: "10 个渠道同比", count: view.counts.channels },
+    { key: "channel", label: "渠道", hint: `${view.counts.channels} 个渠道同比`, count: view.counts.channels },
     { key: "region", label: "区域", hint: "区域汇总与成员门店", count: view.counts.regions },
-    { key: "store", label: "门店", hint: "15 家门店排名", count: view.counts.total },
+    { key: "store", label: "门店", hint: `${view.counts.total} 家门店排名`, count: view.counts.total },
   ];
 
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number): void => {

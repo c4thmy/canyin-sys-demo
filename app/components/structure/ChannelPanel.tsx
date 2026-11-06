@@ -140,7 +140,7 @@ export function ChannelPanel({ view }: { view: StructureView }) {
 
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
-          <caption className="sr-only">10 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
+          <caption className="sr-only">{view.counts.channels} 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
           <thead>
             <tr className="border-b border-slate-200 text-sm text-slate-500">
               <th scope="col" className="py-3 pr-4 text-left font-medium">渠道</th>

@@ -83,7 +83,7 @@ export function PeerComparisonPanel({ view }: { view: StoreDetailView }) {
       description={
         view.store.isNew
           ? "新店只与同店平均客单价对比；客流增速与收入排名需要上年同期或同店身份。"
-          : "把本店放回 13 家同店里看：客单价、客流增速与收入排名。"
+          : `把本店放回 ${benchmark.sameStoreCount} 家同店里看：客单价、客流增速与收入排名。`
       }
     >
       <div className="grid gap-6 lg:grid-cols-3">
@@ -95,7 +95,7 @@ export function PeerComparisonPanel({ view }: { view: StoreDetailView }) {
             <TicketRows benchmark={benchmark} />
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">{describeTicketGap(benchmark)}</p>
-          <p className="mt-1 text-xs text-slate-400">同店平均 = 13 家同店按客流加权，本期。</p>
+          <p className="mt-1 text-xs text-slate-400">同店平均 = {benchmark.sameStoreCount} 家同店按客流加权，本期。</p>
         </section>
 
         <section aria-labelledby="peer-growth-title">
@@ -129,8 +129,7 @@ export function PeerComparisonPanel({ view }: { view: StoreDetailView }) {
             </p>
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-400">
-            按本期收入降序；排名只看 13 家同店，新店不参与。13 家同店本期收入合计{' '}
-            {formatAmount(view.summary.revenueCurrent)} 万元，同店平均客单价{' '}
+            {benchmark.sameStoreCount} 家同店本期收入合计 {formatAmount(view.summary.revenueCurrent)} 万元，同店平均客单价{' '}
             {benchmark.averageTicket === null ? "—" : `${formatAmount(benchmark.averageTicket)} 元`}。
           </p>
         </section>

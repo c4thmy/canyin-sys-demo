@@ -36,12 +36,12 @@ export function StoreTrafficTable({
 
   return (
     <Panel
-      title="13 家同店明细"
+      title={`${rows.length} 家同店明细`}
       description="按收入差降序。收入差取门店表；客流影响 = 客流差 × 上期客单价，客单价影响 = 本期客流 × 客单价差。点击行下钻门店。"
     >
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1000px] border-collapse text-left text-[15px]">
-          <caption className="sr-only">13 家同店客流与客单价拆解明细</caption>
+          <caption className="sr-only">{rows.length} 家同店客流与客单价拆解明细</caption>
           <thead>
             <tr className="border-b border-slate-200 text-sm text-slate-500">
               <th scope="col" className="py-3 pr-4 text-left font-medium">门店</th>

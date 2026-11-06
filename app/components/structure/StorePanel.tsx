@@ -14,6 +14,7 @@ export function StorePanel({
   stores: readonly StoreStructureRow[];
   unit: string;
 }) {
+  const sameStoreCount = stores.filter((store) => !store.isNew).length;
   const totals = stores.reduce(
     (total, store) => ({
       revenue: total.revenue + store.revenue,
@@ -30,7 +31,7 @@ export function StorePanel({
     >
       <div className="overflow-x-auto">
         <table className="w-full min-w-[880px] border-collapse text-left text-[15px]">
-          <caption className="sr-only">15 家门店收入结构，含本期、上期、同比差额与占同店比</caption>
+          <caption className="sr-only">{stores.length} 家门店收入结构，含本期、上期、同比差额与占同店比</caption>
           <thead>
             <tr className="border-b border-slate-200 text-sm text-slate-500">
               <th scope="col" className="py-3 pr-4 font-medium">门店</th>
@@ -105,7 +106,7 @@ export function StorePanel({
         </table>
       </div>
       <p className="mt-4 text-sm leading-6 text-slate-500">
-        占同店比的分母为 13 家同店本期收入合计；新店不参与同店占比与排名。
+        占同店比的分母为 {sameStoreCount} 家同店本期收入合计；新店不参与同店占比与排名。
         收入口径取门店表（{formatAmount(totals.revenue)} {unit}），与新店、同店拆分一致。
       </p>
     </Panel>
