@@ -161,6 +161,53 @@ def parse_traffic(wb, stores):
     }
 
 
+def parse_bundles(wb):
+    """收入异动分析表4：同店线上套餐的销量与销售额（2025 与 2024 两张并列表）。"""
+    import html
+    ws = wb["第二步-收入异动分析"]
+
+    def clean(v):
+        if v is None:
+            return None
+        t = html.unescape(str(v)).strip()
+        return t or None
+
+    def grab(name_col, qty_col, amt_col, disc_col, r0, r1):
+        out = {}
+        for r in range(r0, r1 + 1):
+            nm = clean(ws[f"{name_col}{r}"].value)
+            if not nm or nm in ("合计",):
+                continue
+            out[nm] = {
+                "qty": num(ws, f"{qty_col}{r}"),
+                "amount": num(ws, f"{amt_col}{r}"),
+                "discount": num(ws, f"{disc_col}{r}"),
+            }
+        return out
+
+    new = grab("AJ", "AM", "AO", "AS", 2, 34)
+    old = grab("AV", "AY", "BA", "BE", 2, 34)
+    rows = []
+    for i, name in enumerate(sorted(set(new) | set(old)), start=1):
+        n = new.get(name, {})
+        o = old.get(name, {})
+        rows.append({
+            "id": f"B{i:02d}",
+            "name": name,
+            "qty": {P_NEW: n.get("qty"), P_OLD: o.get("qty")},
+            "amount": {P_NEW: n.get("amount"), P_OLD: o.get("amount")},
+            "discount": {P_NEW: n.get("discount"), P_OLD: o.get("discount")},
+        })
+    return {
+        "provenance": {
+            "sheet": ws.title,
+            "range": "AJ1:AT34（2025）+ AV1:BF34（2024）",
+            "note": "套餐维度；金额单位元（原表单位），数量单位份",
+        },
+        "items": rows,
+    }
+
+
 def parse_acquisition(wb):
     """表8：增收提价的预算与目标。新客获取成本、产投比、目标 ROI。"""
     ws = wb["第二步-收入异动分析"]
@@ -314,9 +361,10 @@ def main():
         "traffic": parse_traffic(wb, stores["items"]),
         "time_slots": parse_time_slots(wb),
         "acquisition": parse_acquisition(wb),
+        "bundles": parse_bundles(wb),
     }
 
-    for key in ("stores", "channels", "categories", "pnl", "funnel", "traffic", "time_slots", "acquisition"):
+    for key in ("stores", "channels", "categories", "pnl", "funnel", "traffic", "time_slots", "acquisition", "bundles"):
         path = os.path.join(out, f"{key}.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload[key], f, ensure_ascii=False, indent=2)

@@ -51,6 +51,8 @@
 - 提交信息用中文，格式 `type: 说明`，type ∈ feat / fix / docs / chore / test / refactor。
 - 一个逻辑改动一个提交。
 - 推送前先拉取，避免覆盖他人。
+- **提交前必须看 `git status`**：仓库可能有其他 Agent 正在写的文件，`git add -A` 会把它们
+  一起卷进你的提交。只 add 你自己改的文件，或先确认没有并发写入。
 
 ## 七、分支
 
