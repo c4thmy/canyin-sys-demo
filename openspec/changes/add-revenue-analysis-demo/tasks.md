@@ -2,11 +2,11 @@
 
 ## 1. D1 数据底座
 
-- [ ] 1.1 从 Excel 抽取 13 家门店、10 个渠道、8 个系列的样例数据
-- [ ] 1.2 脱敏：品牌匿名、门店序号化
-- [ ] 1.3 生成 `data/seed/*.json` 与数据字典 `data/dictionary.md`
-- [ ] 1.4 建 SQLite schema 与幂等导入脚本 `scripts/import.ts`
-- [ ] 1.5 校验：导入后门店数与收入合计与 Excel 一致
+- [x] 1.1 从 Excel 抽取 13 家门店、10 个渠道、8 个系列的样例数据
+- [x] 1.2 脱敏：品牌匿名、门店序号化（源表本身已匿名）
+- [x] 1.3 生成 `data/seed/*.json` 与数据字典 `data/dictionary.md`
+- [x] 1.4 幂等抽取脚本 `scripts/extract_seed.py`（决策改为 JSON 直读，暂不引入 SQLite，见 design 决策四）
+- [x] 1.5 校验：门店 / 渠道 / 品类 / 利润表四项合计与 Excel 一致
 
 ## 2. D2 指标引擎
 

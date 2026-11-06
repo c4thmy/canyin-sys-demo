@@ -37,11 +37,13 @@ App Router 做页面，Docker 部署，SQLite 零运维。替代方案：纯静�
 客单价影响 = 本期客流 × 客单价差
 ```
 
-### 决策四：样例数据用 JSON 种子，导入 SQLite
+### 决策四：样例数据用 JSON 种子直读，暂不引入 SQLite
 
-`data/seed/*.json` 是唯一事实来源，`scripts/import.ts` 负责入库，幂等。
+`data/seed/*.json` 是唯一事实来源，应用构建时直接读取；每个文件带 `provenance` 字段记录来源工作表与单元格范围。SQLite 推迟到接入真实客户数据时再引入——演示阶段 13 家门店的数据量用 JSON 足够，且少一层依赖（better-sqlite3 需本地编译）。
 
 ## 数据模型
+
+演示数据以 `data/seed/<name>.json` 组织，字段等价于下表：
 
 | 表 | 关键字段 |
 |---|---|
