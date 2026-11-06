@@ -7,6 +7,7 @@
 - [x] 1.3 生成 `data/seed/*.json` 与数据字典 `data/dictionary.md`
 - [x] 1.4 幂等抽取脚本 `scripts/extract_seed.py`（决策改为 JSON 直读，暂不引入 SQLite，见 design 决策四）
 - [x] 1.5 校验：门店 / 渠道 / 品类 / 利润表四项合计与 Excel 一致
+- [x] 1.6 补入表6真实客流与客单价、表7时段客流（逐店校验 收入 = 客流 × 客单价）
 
 ## 2. D2 指标引擎
 
