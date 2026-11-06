@@ -26,6 +26,24 @@ scripts/             数据导入、构建、部署脚本
 .github/workflows/   CI
 ```
 
+## 远程仓库
+
+https://github.com/c4thmy/canyin-sys-demo
+
+## 规格驱动：所有修改必须留痕
+
+本项目用 OpenSpec 管理每一次修改。规则写在 [AGENTS.md](AGENTS.md)。
+
+```bash
+openspec list              # 当前进行中的 change
+openspec view              # 仪表盘
+openspec validate --all    # 校验
+openspec archive <name>    # 完成并归档
+```
+
+已归档：`bootstrap-project`（项目初始化）。
+进行中：`add-feishu-channel`（飞书接入）、`add-revenue-analysis-demo`（收入分析 Demo）。
+
 ## 快速开始
 
 ```bash
