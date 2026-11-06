@@ -10,3 +10,4 @@ export {
 export { funnelRates } from "./funnel.js";
 export { topContributors } from "./contributors.js";
 export { channelRoi, ROI_THRESHOLDS } from "./roi.js";
+export { profitBridge } from "./profit-bridge.js";

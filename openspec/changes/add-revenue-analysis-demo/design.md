@@ -20,7 +20,7 @@
 
 ## Decisions
 
-### 决策一：Next.js 15 + SQLite
+### 决策一：Next.js 16 + 静态预渲染
 
 App Router 做页面，Docker 部署，SQLite 零运维。替代方案：纯静态站点，放弃原因是无法承载数据导入与后续模块。
 

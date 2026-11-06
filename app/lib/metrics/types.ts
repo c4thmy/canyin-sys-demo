@@ -203,3 +203,25 @@ export interface ChannelRoiResult {
   /** 三项阈值是否全部满足；任一比率无法计算时为 null */
   readonly healthy: boolean | null;
 }
+
+/** 利润表项目；金额单位跟随数据源（样例数据为万元） */
+export interface PnlItem {
+  readonly item: string;
+  readonly values: NumberByPeriod;
+}
+
+/** 利润桥节点类型：起止节点为营业利润总额，中间节点为因素贡献 */
+export type ProfitBridgeKind = "start" | "up" | "down" | "end";
+
+/** 利润桥瀑布图节点 */
+export interface ProfitBridgeNode {
+  /** 稳定标识，如 lastYearProfit / revenue / foodCost / thisYearProfit */
+  readonly key: string;
+  /** 中文显示名 */
+  readonly label: string;
+  /** 因素影响额；起止节点固定为 0 */
+  readonly effect: number;
+  /** 该节点之后的累计营业利润；起止节点即两期营业利润本身 */
+  readonly cumulative: number;
+  readonly kind: ProfitBridgeKind;
+}

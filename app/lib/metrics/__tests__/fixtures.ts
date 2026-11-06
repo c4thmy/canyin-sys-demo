@@ -4,6 +4,7 @@ import type {
   Category,
   Channel,
   FunnelCounts,
+  PnlItem,
   Store,
 } from "../types.js";
 
@@ -47,6 +48,12 @@ interface RawFunnelRecord {
   readonly consumers: number | null;
 }
 
+interface RawPnlItem {
+  readonly item: string;
+  readonly values: Record<string, number>;
+  readonly derived: string | null;
+}
+
 /** data/seed 目录（从 app/lib/metrics/__tests__/ 回溯到仓库根） */
 const SEED_DIR = new URL("../../../../data/seed/", import.meta.url);
 
@@ -62,6 +69,7 @@ const rawStores = readSeed<RawStore>("stores.json");
 const rawChannels = readSeed<RawChannel>("channels.json");
 const rawCategories = readSeed<RawCategory>("categories.json");
 const rawFunnel = readSeed<RawFunnelRecord>("funnel.json");
+const rawPnl = readSeed<RawPnlItem>("pnl.json");
 
 /** 15 家门店（含 2 家新店） */
 export const stores: readonly Store[] = rawStores.map((item) => ({
@@ -86,6 +94,12 @@ export const categories: readonly Category[] = rawCategories.map((item) => ({
   unitPrice: item.unit_price,
   revenue: item.revenue,
   cost: item.cost,
+}));
+
+/** 9 项利润表数据 */
+export const pnl: readonly PnlItem[] = rawPnl.map((item) => ({
+  item: item.item,
+  values: item.values,
 }));
 
 /** 13 家在营门店的线上漏斗记录 */
