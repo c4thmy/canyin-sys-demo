@@ -86,23 +86,23 @@ describe("bundleDecompose · 套餐量价分解", () => {
     expect(rows).toHaveLength(11);
   });
 
-  it("只保留两期齐全的套餐：单期新上架的 B03、B26 不在结果里", () => {
+  it("只保留两期齐全的套餐：单期新上架的 B01、B31 不在结果里", () => {
     const ids = rows.map((row) => row.id);
 
-    expect(ids).not.toContain("B03");
-    expect(ids).not.toContain("B26");
-    expect(ids).toContain("B02");
+    expect(ids).not.toContain("B01");
+    expect(ids).not.toContain("B31");
+    expect(ids).toContain("B04");
   });
 
   it("按收入差降序，第一行是秒杀引流款", () => {
     const deltas = rows.map((row) => row.amountDelta);
     expect(deltas).toEqual([...deltas].sort((a, b) => b - a));
-    expect(rows[0]?.id).toBe("B02");
+    expect(rows[0]?.id).toBe("B04");
   });
 
   it("#超值miao杀！#单人豪华吃饱饱3荤8素河粉套餐：89 → 495 份，8,277 → 46,035 元", () => {
-    const row = bundleById("B02");
-    const decomposed = rows.find((item) => item.id === "B02");
+    const row = bundleById("B04");
+    const decomposed = rows.find((item) => item.id === "B04");
 
     expect(row.qty).toMatchObject({ "2024-09": 89, "2025-09": 495 });
     expect(row.amount).toMatchObject({ "2024-09": 8277, "2025-09": 46035 });
@@ -115,8 +115,8 @@ describe("bundleDecompose · 套餐量价分解", () => {
     expect(decomposed?.qtyDelta).toBe(406);
   });
 
-  it("B02 单价两期都是 93 元：增量 37,758 元全部来自销量，单价影响为 0", () => {
-    const row = rows.find((item) => item.id === "B02");
+  it("B04 单价两期都是 93 元：增量 37,758 元全部来自销量，单价影响为 0", () => {
+    const row = rows.find((item) => item.id === "B04");
 
     expect(row?.pricePrevious).toBeCloseTo(93, 10);
     expect(row?.priceCurrent).toBeCloseTo(93, 10);
@@ -130,17 +130,17 @@ describe("bundleDecompose · 套餐量价分解", () => {
     }
   });
 
-  it("11 个可比套餐的单价影响合计只有 6 元（全部来自 B07，单价 472.00 → 472.30）", () => {
+  it("11 个可比套餐的单价影响合计只有 6 元（全部来自 B16，单价 472.00 → 472.30）", () => {
     const totalPriceEffect = rows.reduce((sum, row) => sum + row.priceEffect, 0);
     const totalQtyEffect = rows.reduce((sum, row) => sum + row.qtyEffect, 0);
 
     expect(totalPriceEffect).toBeCloseTo(6, 6);
     expect(totalQtyEffect).toBeCloseTo(87066, 6);
-    expect(rows.find((row) => row.id === "B07")?.priceDelta).toBeCloseTo(0.3, 10);
+    expect(rows.find((row) => row.id === "B16")?.priceDelta).toBeCloseTo(0.3, 10);
   });
 
-  it("优惠率取本期优惠额 ÷ 本期销售额，B02 为 61.4%", () => {
-    const row = rows.find((item) => item.id === "B02");
+  it("优惠率取本期优惠额 ÷ 本期销售额，B04 为 61.4%", () => {
+    const row = rows.find((item) => item.id === "B04");
 
     expect(row?.discountRate ?? 0).toBeCloseTo(28246.07 / 46035, 10);
     expect((row?.discountRate ?? 0) * 100).toBeCloseTo(61.4, 1);

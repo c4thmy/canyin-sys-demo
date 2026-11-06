@@ -162,47 +162,75 @@ def parse_traffic(wb, stores):
 
 
 def parse_bundles(wb):
-    """收入异动分析表4：同店线上套餐的销量与销售额（2025 与 2024 两张并列表）。"""
+    """收入异动分析表4：同店线上套餐的销量与销售额（2025 与 2024 两张并列表）。
+
+    源表存在双重转义的引号（同名套餐写法不同），且同名套餐可能出现多次。
+    这里按「逐行保留 + 名称解码 + 按名称顺序配对两期」处理，不合并、不丢行。
+    """
     import html
+    from collections import deque
     ws = wb["第二步-收入异动分析"]
 
     def clean(v):
         if v is None:
             return None
-        t = html.unescape(str(v)).strip()
-        return t or None
+        t = str(v)
+        for _ in range(3):
+            new = html.unescape(t)
+            if new == t:
+                break
+            t = new
+        return t.strip() or None
 
     def grab(name_col, qty_col, amt_col, disc_col, r0, r1):
-        out = {}
+        out = []
         for r in range(r0, r1 + 1):
             nm = clean(ws[f"{name_col}{r}"].value)
             if not nm or nm in ("合计",):
                 continue
-            out[nm] = {
+            out.append({
+                "name": nm,
                 "qty": num(ws, f"{qty_col}{r}"),
                 "amount": num(ws, f"{amt_col}{r}"),
                 "discount": num(ws, f"{disc_col}{r}"),
-            }
+            })
         return out
 
-    new = grab("AJ", "AM", "AO", "AS", 2, 34)
-    old = grab("AV", "AY", "BA", "BE", 2, 34)
+    new_rows = grab("AJ", "AM", "AO", "AS", 2, 34)
+    old_rows = grab("AV", "AY", "BA", "BE", 2, 34)
+
+    old_by_name = {}
+    for r in old_rows:
+        old_by_name.setdefault(r["name"], deque()).append(r)
+
     rows = []
-    for i, name in enumerate(sorted(set(new) | set(old)), start=1):
-        n = new.get(name, {})
-        o = old.get(name, {})
+    for i, n in enumerate(new_rows, start=1):
+        o = None
+        bucket = old_by_name.get(n["name"])
+        if bucket:
+            o = bucket.popleft()
         rows.append({
             "id": f"B{i:02d}",
-            "name": name,
-            "qty": {P_NEW: n.get("qty"), P_OLD: o.get("qty")},
-            "amount": {P_NEW: n.get("amount"), P_OLD: o.get("amount")},
-            "discount": {P_NEW: n.get("discount"), P_OLD: o.get("discount")},
+            "name": n["name"],
+            "qty": {P_NEW: n["qty"], P_OLD: o["qty"] if o else None},
+            "amount": {P_NEW: n["amount"], P_OLD: o["amount"] if o else None},
+            "discount": {P_NEW: n["discount"], P_OLD: o["discount"] if o else None},
+        })
+    # 只在 2024 出现、没有配对的套餐
+    extra = [r for bucket in old_by_name.values() for r in bucket]
+    for o in extra:
+        rows.append({
+            "id": f"B{len(rows) + 1:02d}",
+            "name": o["name"],
+            "qty": {P_NEW: None, P_OLD: o["qty"]},
+            "amount": {P_NEW: None, P_OLD: o["amount"]},
+            "discount": {P_NEW: None, P_OLD: o["discount"]},
         })
     return {
         "provenance": {
             "sheet": ws.title,
             "range": "AJ1:AT34（2025）+ AV1:BF34（2024）",
-            "note": "套餐维度；金额单位元（原表单位），数量单位份",
+            "note": "套餐维度；金额单位元（原表单位），数量单位份；名称已解码 HTML 实体",
         },
         "items": rows,
     }
