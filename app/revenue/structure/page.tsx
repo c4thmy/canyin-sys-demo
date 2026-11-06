@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 
+import { DeltaValue } from "../../components/DeltaValue.js";
+import { PageIntro } from "../../components/PageIntro.js";
 import { RevenueHeader } from "../../components/RevenueHeader.js";
 import { formatSignedAmount } from "../../lib/format.js";
 import { StructureBoard } from "../../components/structure/StructureBoard.js";
 import { loadSeed } from "../../lib/seed.js";
 import { buildStructureView } from "../../lib/structure-view.js";
+import { LAYOUT, TYPE } from "../../lib/theme.js";
 
 export const metadata: Metadata = {
   title: "收入结构 · 餐饮经营分析",
@@ -38,27 +41,31 @@ export default function Page() {
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
-        <section className="rounded-2xl border border-slate-200/70 bg-white/60 px-5 py-4 text-[15px] leading-7 text-slate-600">
+      <div className={LAYOUT.container}>
+        <PageIntro>
           <span className="font-medium text-slate-800">先看结构，再看异动：</span>
           营业收入同比{' '}
           <span className="font-mono font-semibold text-slate-900 tabular-nums">
             {formatSignedAmount(view.split.total.delta)} 万元
           </span>
           ，其中同店{' '}
-          <span className="font-mono font-semibold text-emerald-700 tabular-nums">
-            {formatSignedAmount(view.split.sameStore.delta)} 万元
-          </span>
+          <DeltaValue
+            value={view.split.sameStore.delta}
+            text={`${formatSignedAmount(view.split.sameStore.delta)} 万元`}
+            className="font-semibold"
+          />
           、新店{' '}
-          <span className="font-mono font-semibold text-blue-700 tabular-nums">
-            {formatSignedAmount(view.split.newStore.delta)} 万元
-          </span>
+          <DeltaValue
+            value={view.split.newStore.delta}
+            text={`${formatSignedAmount(view.split.newStore.delta)} 万元`}
+            className="font-semibold"
+          />
           。同店是经营质量，新店是开店增量——同店为什么涨，去「同店异动」继续拆。
-        </section>
+        </PageIntro>
 
         <StructureBoard view={view} />
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{seed.meta.source_file} · 工作表「{[...new Set([seed.storeSheet, seed.channelSheet])].join("」「")}」 · 单位：
           {view.unit}。同店判定沿用门店表的 is_new 标记（新店 {view.counts.newStore} 家）；样例数据仅供演示。
         </footer>

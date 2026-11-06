@@ -8,6 +8,7 @@ import { TimeSlotPanel } from "../../components/TimeSlotPanel.js";
 import { formatSignedAmount } from "../../lib/format.js";
 import { buildSameStoreView } from "../../lib/same-store-view.js";
 import { loadSeed } from "../../lib/seed.js";
+import { LAYOUT, TYPE } from "../../lib/theme.js";
 
 export const metadata: Metadata = {
   title: "同店异动 · 餐饮经营分析",
@@ -41,7 +42,7 @@ export default function Page() {
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
+      <div className={LAYOUT.container}>
         <section aria-label="同店关键指标" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {view.cards.map((card) => (
             <MetricCard key={card.key} card={card} />
@@ -63,7 +64,7 @@ export default function Page() {
 
         <TimeSlotPanel groups={view.timeSlots} insight={view.timeInsight} />
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{seed.meta.source_file} · 工作表「{seed.trafficSheet}」「{seed.timeSlotSheet}」 · 单位：
           {view.unit}。客流与客单价取表6，收入取门店表；两者的取整差额已在拆解卡与明细表注明。样例数据仅供演示。
         </footer>

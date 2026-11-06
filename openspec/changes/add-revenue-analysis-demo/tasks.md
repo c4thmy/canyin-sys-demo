@@ -50,11 +50,11 @@
 
 ## 7. D7 演示化
 
-- [ ] 7.1 全站视觉统一：配色、字号、图表样式
-- [ ] 7.2 指标口径悬停说明
-- [ ] 7.3 Docker 构建 + 冒烟脚本
-- [ ] 7.4 演示动线彩排，15 分钟走完
-- [ ] 7.5 飞书入口联调，课上可当场演示
+- [x] 7.1 全站视觉统一：色值与字号收口到 `theme.ts`，7 条路由两档截图核验
+- [x] 7.2 指标口径悬停说明：6 个关键指标，原生 title + CSS tooltip 双保险
+- [x] 7.3 Docker 文件与冒烟脚本（`Dockerfile` / `docker-compose.yml` / `scripts/smoke.sh`）；本地冒烟 7/7 通过，**镜像构建待 Docker Desktop 验证**
+- [x] 7.4 15 分钟演示脚本 + 答疑清单（`docs/demo/`），含 10 分钟删减版与 20 分钟加讲版；现场彩排由用户执行
+- [x] 7.5 飞书通道已接通并归档为 `im-channel` 能力
 
 ## 8. 验收
 
@@ -65,4 +65,8 @@
 ## Workflow follow-up
 
 - 归档后 `revenue-analysis` 与 `demo-data` 两个能力进入主规格。
-- 未完成项转为 backlog，不在本 change 内继续。
+- **待办（不在本 change 内）**：
+  - 启动 Docker Desktop 后执行 `bash scripts/smoke.sh --docker` 验证镜像
+  - 现场彩排一次 15 分钟演示
+  - 用户提供 2025 食材成本真实值与 2024 品类收入真实值，替换推算值
+  - 首页与收入结构页的利润表/门店口径差，可视需要统一

@@ -8,6 +8,7 @@ import { StoreEffectPanel } from "../../../components/StoreEffectPanel.js";
 import { formatAmount, formatSignedAmount } from "../../../lib/format.js";
 import { loadSeed } from "../../../lib/seed.js";
 import { buildStoreDetailView } from "../../../lib/store-view.js";
+import { LAYOUT, TYPE } from "../../../lib/theme.js";
 
 export const dynamicParams = false;
 
@@ -70,7 +71,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
+      <div className={LAYOUT.container}>
         <section aria-label="门店关键指标" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {view.cards.map((card) => (
             <MetricCard key={card.key} card={card} />
@@ -81,7 +82,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
         <PeerComparisonPanel view={view} />
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{seed.meta.source_file} · 工作表「{seed.storeSheet}」「{seed.trafficSheet}」 · 单位：
           {view.unit}。收入取门店表，客流与客单价取表6；新店无上年同期，不做同比与拆解。样例数据仅供演示。
         </footer>

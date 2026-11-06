@@ -6,15 +6,16 @@ import {
   INSIGHT_SEVERITY_LABELS,
 } from "../../lib/insight-labels.js";
 import type { Insight, InsightSeverity } from "../../lib/metrics/index.js";
+import { TYPE } from "../../lib/theme.js";
 
 const SEVERITY_STYLE: Record<
   InsightSeverity,
   { readonly card: string; readonly rail: string; readonly badge: string }
 > = {
   critical: {
-    card: "border-rose-300 bg-rose-50/50",
-    rail: "bg-gradient-to-r from-rose-500 to-rose-400",
-    badge: "bg-rose-600 text-white",
+    card: "border-down/40 bg-down-soft",
+    rail: "bg-down",
+    badge: "bg-down text-white",
   },
   warning: {
     card: "border-amber-300 bg-amber-50/50",
@@ -22,9 +23,9 @@ const SEVERITY_STYLE: Record<
     badge: "bg-amber-500 text-white",
   },
   positive: {
-    card: "border-emerald-200 bg-white",
-    rail: "bg-gradient-to-r from-emerald-500 to-teal-400",
-    badge: "bg-emerald-600 text-white",
+    card: "border-up/30 bg-white",
+    rail: "bg-up",
+    badge: "bg-up text-white",
   },
 };
 
@@ -44,11 +45,11 @@ export function InsightCard({ insight, wide = false }: { insight: Insight; wide?
 
       <div className="flex flex-wrap items-center gap-2">
         <span
-          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide ${style.badge}`}
+          className={`rounded-full px-2.5 py-1 text-micro font-semibold tracking-wide ${style.badge}`}
         >
           {INSIGHT_SEVERITY_LABELS[insight.severity]}
         </span>
-        <span className="rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+        <span className="rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 text-micro font-medium text-slate-600">
           {INSIGHT_CATEGORY_LABELS[insight.category]}
         </span>
         {insight.link ? (
@@ -61,10 +62,8 @@ export function InsightCard({ insight, wide = false }: { insight: Insight; wide?
         ) : null}
       </div>
 
-      <h3 className="mt-3 text-xl font-semibold leading-8 tracking-tight text-slate-900">
-        {insight.title}
-      </h3>
-      <p className={`mt-2.5 text-[15px] leading-7 text-slate-700 ${wide ? "max-w-5xl" : ""}`}>
+      <h3 className={`mt-3 ${TYPE.featuredTitle}`}>{insight.title}</h3>
+      <p className={`mt-2.5 text-body leading-7 text-slate-700 ${wide ? "max-w-5xl" : ""}`}>
         {insight.detail}
       </p>
 
@@ -74,8 +73,8 @@ export function InsightCard({ insight, wide = false }: { insight: Insight; wide?
             key={evidence.label}
             className="min-w-0 rounded-xl border border-white/80 bg-white/85 px-3 py-2"
           >
-            <dt className="text-[11px] leading-4 text-slate-500">{evidence.label}</dt>
-            <dd className="mt-0.5 break-words font-mono text-[13px] font-semibold leading-5 text-slate-900 tabular-nums">
+            <dt className="text-micro leading-4 text-slate-500">{evidence.label}</dt>
+            <dd className="mt-0.5 break-words font-mono text-meta font-semibold leading-5 text-slate-900 tabular-nums">
               {evidence.link ? (
                 <Link
                   href={evidence.link}
@@ -92,7 +91,7 @@ export function InsightCard({ insight, wide = false }: { insight: Insight; wide?
         ))}
       </dl>
 
-      <p className="mt-auto pt-4 text-[11px] leading-5 text-slate-400">
+      <p className={`mt-auto pt-4 ${TYPE.micro} text-slate-400`}>
         证据来自本期数据；点击数字可跳到{drillLabel}核对。
       </p>
     </article>

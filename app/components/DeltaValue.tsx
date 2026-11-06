@@ -10,7 +10,7 @@ export function DeltaValue({
   text?: string;
   className?: string;
 }) {
-  const tone = value > 0 ? "text-emerald-600" : value < 0 ? "text-rose-600" : "text-slate-500";
+  const tone = value > 0 ? "text-up" : value < 0 ? "text-down" : "text-slate-500";
   return (
     <span className={`font-mono tabular-nums ${tone} ${className}`}>
       {text ?? formatSignedAmount(value)}

@@ -1,0 +1,21 @@
+# 构建上下文瘦身：运行时只需要 standalone 产物 + data/seed
+node_modules
+.next
+.git
+.github
+.tmp
+*.log
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+# 文档与提案不进镜像（docs/demo 下的截图尤其占体积）
+docs
+openspec
+README.md
+AGENTS.md
+# 容器编排与脚本本身不需要进镜像
+Dockerfile
+docker-compose.yml
+.dockerignore
+scripts

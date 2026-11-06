@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { SeedPeriod } from "../lib/seed.js";
+import { LAYOUT, TYPE } from "../lib/theme.js";
 import { PeriodSwitch } from "./PeriodSwitch.js";
 
 const NAV = [
@@ -15,6 +16,12 @@ const NAV = [
 
 export type RevenueNavKey = (typeof NAV)[number]["key"];
 
+/**
+ * 全站统一页头：标题区 + 期间切换 + 独立一行的导航胶囊。
+ *
+ * 导航放在标题下单独一行、且不换行（`flex-nowrap` + `whitespace-nowrap`），
+ * 保证 1280 宽度下 6 个胶囊仍在一行；更窄的屏幕横向滚动而不是折行。
+ */
 export function RevenueHeader({
   title,
   subtitle,
@@ -38,8 +45,8 @@ export function RevenueHeader({
 }) {
   return (
     <header className="hero-panel">
-      <div className="mx-auto max-w-[1440px] px-6 py-10 lg:px-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div className={LAYOUT.header}>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
             {back ? (
               <Link
@@ -50,13 +57,9 @@ export function RevenueHeader({
                 {back.label}
               </Link>
             ) : null}
-            <p className="text-[13px] font-semibold uppercase tracking-[0.3em] text-teal-300">
-              {eyebrow}
-            </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white lg:text-5xl">
-              {title}
-            </h1>
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-lg text-slate-300">
+            <p className={TYPE.eyebrow}>{eyebrow}</p>
+            <h1 className={`mt-3 ${TYPE.pageTitle}`}>{title}</h1>
+            <div className={`mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 ${TYPE.headerMeta}`}>
               {subtitle}
               <span className="rounded-full border border-white/15 px-3 py-1 text-sm text-slate-300">
                 单位：{unit}
@@ -64,32 +67,36 @@ export function RevenueHeader({
             </div>
           </div>
 
-          <div className="lg:text-right">
-            <nav aria-label="收入分析导航" className="mb-4 flex flex-wrap gap-2 lg:justify-end">
-              {NAV.map((item) => {
-                const isActive = item.key === active;
-                return (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={[
-                      "rounded-full border px-3 py-1.5 text-[13px] font-medium transition lg:px-3.5",
-                      isActive
-                        ? "border-teal-300/60 bg-teal-400/15 text-teal-200"
-                        : "border-white/10 text-slate-300 hover:border-white/25 hover:text-white",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+          <div className="shrink-0 lg:text-right">
             <p className="mb-2 text-xs tracking-wide text-slate-400">期间（固定两期对比）</p>
             <PeriodSwitch periods={periods} activeId={activePeriodId} />
             <p className="mt-2 text-xs text-slate-500">上年同期：{previousLabel}</p>
           </div>
         </div>
+
+        <nav
+          aria-label="收入分析导航"
+          className="mt-6 flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 lg:justify-end"
+        >
+          {NAV.map((item) => {
+            const isActive = item.key === active;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={[
+                  "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-meta font-medium transition lg:px-3.5",
+                  isActive
+                    ? "border-teal-300/60 bg-teal-400/15 text-teal-200"
+                    : "border-white/10 text-slate-300 hover:border-white/25 hover:text-white",
+                ].join(" ")}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </header>
   );

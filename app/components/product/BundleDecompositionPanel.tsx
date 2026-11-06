@@ -1,6 +1,7 @@
 import { formatAmount, formatInteger, formatPercent, formatSignedInteger } from "../../lib/format.js";
 import type { BundleDecompositionRow } from "../../lib/metrics/types.js";
 import type { BundleTotals } from "../../lib/product-view.js";
+import { TYPE } from "../../lib/theme.js";
 import { DeltaValue } from "../DeltaValue.js";
 import { Panel } from "../Panel.js";
 
@@ -38,7 +39,7 @@ function EffectBar({
   const width = max === 0 ? 0 : Math.min(100, (Math.abs(value) / max) * 100);
   return (
     <div className="mt-1 flex items-center gap-2">
-      <span className="w-16 shrink-0 text-right text-[11px] text-slate-400">{label}</span>
+      <span className="w-16 shrink-0 text-right text-micro text-slate-400">{label}</span>
       <div className="h-3 flex-1 overflow-hidden rounded-sm border border-slate-100 bg-white">
         <div className={`h-full ${tone}`} style={{ width: `${width}%` }} />
       </div>
@@ -92,7 +93,7 @@ export function BundleDecompositionPanel({
     >
       <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 lg:p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-medium text-slate-600">
+          <h3 className={TYPE.caption}>
             收入差 Top {top5.length} · 销量影响 vs 单价影响（元）
           </h3>
           <p className="text-xs text-slate-400">
@@ -105,7 +106,7 @@ export function BundleDecompositionPanel({
           {top5.map((row) => (
             <div key={row.id}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-slate-800" title={row.name}>
+                <span className="min-w-0 flex-1 truncate text-body font-medium text-slate-800" title={row.name}>
                   {decodeName(row.name)}
                 </span>
                 <span className="flex shrink-0 items-baseline gap-2">
@@ -113,7 +114,7 @@ export function BundleDecompositionPanel({
                   <DeltaValue
                     value={row.amountDelta}
                     text={`${formatSignedInteger(row.amountDelta)} 元`}
-                    className="text-[15px] font-semibold"
+                    className="text-body font-semibold"
                   />
                 </span>
               </div>
@@ -133,14 +134,14 @@ export function BundleDecompositionPanel({
         </div>
       </div>
 
-      <p className="mt-3 text-sm leading-6 text-slate-500">
+      <p className={`mt-3 ${TYPE.note}`}>
         蓝色条几乎为零不是画错了：{rows.length} 个可比套餐里{priceMoveText}，
         单价影响合计只有 {formatSignedInteger(totals.priceEffect)} 元——增量几乎全部来自销量。
       </p>
 
       {story ? (
         <div className="mt-4 flex items-start gap-3 rounded-lg border border-teal-100 bg-teal-50/60 px-4 py-3">
-          <span className="mt-0.5 shrink-0 rounded bg-teal-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+          <span className="mt-0.5 shrink-0 rounded bg-teal-600 px-1.5 py-0.5 text-micro font-semibold text-white">
             最典型的{story.kind === "leadgen" ? "引流款" : "正价套餐"}
           </span>
           <p className="text-sm leading-6 text-teal-900">
@@ -154,12 +155,12 @@ export function BundleDecompositionPanel({
       ) : null}
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[1140px] border-collapse text-left text-[15px]">
+        <table className="w-full min-w-[1140px] border-collapse text-left text-body">
           <caption className="sr-only">
             两期可比的 {rows.length} 个套餐的销量、销售额、单价与量价分解
           </caption>
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
+            <tr className={`border-b border-slate-200 ${TYPE.tableHead}`}>
               <th rowSpan={2} scope="col" className="whitespace-nowrap py-3 pr-4 text-left align-bottom font-medium">
                 套餐
               </th>
@@ -182,7 +183,7 @@ export function BundleDecompositionPanel({
                 收入差
               </th>
             </tr>
-            <tr className="border-b border-slate-200 text-xs text-slate-400">
+            <tr className={`border-b border-slate-200 ${TYPE.tableHeadNested}`}>
               <th scope="col" className="whitespace-nowrap px-2.5 pb-2 text-right font-medium">2024</th>
               <th scope="col" className="whitespace-nowrap px-2.5 pb-2 text-right font-medium">2025</th>
               <th scope="col" className="whitespace-nowrap px-2.5 pb-2 text-right font-medium">2024</th>
@@ -200,13 +201,13 @@ export function BundleDecompositionPanel({
                 className="border-b border-slate-100 transition-colors last:border-0 hover:bg-teal-50/40"
               >
                 <th scope="row" className="py-3.5 pr-4 text-left font-medium text-slate-900">
-                  <span className="mr-2 align-middle font-mono text-[11px] font-normal text-slate-400">
+                  <span className="mr-2 align-middle font-mono text-micro font-normal text-slate-400">
                     {row.id}
                   </span>
                   <span className="align-middle leading-6">{decodeName(row.name)}</span>
                 </th>
                 <td className="whitespace-nowrap px-2 py-3.5 text-center">
-                  <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${KIND_STYLE[row.kind]}`}>
+                  <span className={`rounded px-1.5 py-0.5 text-micro font-medium ${KIND_STYLE[row.kind]}`}>
                     {KIND_LABEL[row.kind]}
                   </span>
                 </td>
@@ -272,7 +273,7 @@ export function BundleDecompositionPanel({
         </table>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-500">
+      <p className={`mt-4 ${TYPE.note}`}>
         金额沿用源表单位「元」，与系列层的「万元」不同源，不合并计算。合计行的单价留空——
         不同套餐单价不可加总。另外 {totalCount - rows.length} 个套餐只在单期出现（新上架或已下架），
         没有可比基期，不参与分解；它们不影响本表的量价结论。

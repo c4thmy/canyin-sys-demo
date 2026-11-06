@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { formatAmount, formatPercent, formatSignedAmount, formatSignedPercent } from "../../lib/format.js";
 import type { AggregateGroup } from "../../lib/metrics/types.js";
+import { TYPE } from "../../lib/theme.js";
 import { DeltaValue } from "../DeltaValue.js";
 import { Panel } from "../Panel.js";
 
@@ -115,10 +116,10 @@ export function ChannelPanel({
     >
       <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 lg:p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-medium text-slate-600">渠道同比差额 · 横向条形（{unit}）</h3>
+          <h3 className={TYPE.caption}>渠道同比差额 · 横向条形（{unit}）</h3>
           <p className="text-xs text-slate-400">
-            <span className="text-emerald-600">■</span> 增长
-            <span className="ml-3 text-rose-600">■</span> 下降 · 长度按差额绝对值归一
+            <span className="text-up">■</span> 上升
+            <span className="ml-3 text-down">■</span> 下降 · 长度按差额绝对值归一
           </p>
         </div>
 
@@ -129,7 +130,7 @@ export function ChannelPanel({
             const positive = group.delta >= 0;
             return (
               <div key={group.key} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 truncate text-[15px] text-slate-600" title={group.key}>
+                <span className="w-28 shrink-0 truncate text-body text-slate-600" title={group.key}>
                   {group.key}
                 </span>
                 <div className="relative h-7 flex-1 overflow-hidden rounded-md border border-slate-200/70 bg-white">
@@ -137,7 +138,7 @@ export function ChannelPanel({
                   <span
                     className={[
                       "absolute top-1/2 h-4 -translate-y-1/2",
-                      positive ? "rounded-r bg-emerald-500" : "rounded-l bg-rose-500",
+                      positive ? "rounded-r bg-up" : "rounded-l bg-down",
                     ].join(" ")}
                     style={
                       positive
@@ -147,7 +148,7 @@ export function ChannelPanel({
                   />
                 </div>
                 <span className="w-24 shrink-0 text-right">
-                  <DeltaValue value={group.delta} text={formatSignedAmount(group.delta)} className="text-[15px]" />
+                  <DeltaValue value={group.delta} text={formatSignedAmount(group.delta)} className="text-body" />
                 </span>
               </div>
             );
@@ -166,10 +167,10 @@ export function ChannelPanel({
       </div>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
+        <table className="w-full min-w-[900px] border-collapse text-left text-body">
           <caption className="sr-only">{rows.length} 个渠道收入结构与同比变化，可按本期收入或同比差额排序</caption>
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
+            <tr className={`border-b border-slate-200 ${TYPE.tableHead}`}>
               <th scope="col" className="py-3 pr-4 text-left font-medium">渠道</th>
               <SortableHeader
                 label={`本期收入（${unit}）`}
@@ -178,9 +179,9 @@ export function ChannelPanel({
                 direction={direction}
                 onSort={onSort}
               />
-              <th scope="col" className="px-4 py-3 text-right font-medium">上期收入</th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">上期收入（{unit}）</th>
               <SortableHeader
-                label="同比差额"
+                label={`同比差额（${unit}）`}
                 sortKey="delta"
                 activeKey={sortKey}
                 direction={direction}
@@ -245,7 +246,7 @@ export function ChannelPanel({
       </div>
 
       {storeTotal === undefined ? null : (
-        <p className="mt-4 text-sm leading-6 text-slate-500">
+        <p className={`mt-4 ${TYPE.note}`}>
           渠道口径合计 {formatAmount(totalCurrent)} 万元，与门店口径 {formatAmount(storeTotal)} 万元相差{' '}
           {formatAmount(Math.abs(storeTotal - totalCurrent))} 万元，为源表四舍五入。
         </p>

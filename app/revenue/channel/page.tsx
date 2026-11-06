@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { AcquisitionPanel } from "../../components/channel/AcquisitionPanel.js";
 import { FunnelPanel } from "../../components/channel/FunnelPanel.js";
 import { NoteCard } from "../../components/NoteCard.js";
+import { PageIntro } from "../../components/PageIntro.js";
 import { RevenueHeader } from "../../components/RevenueHeader.js";
 import { ChannelPanel } from "../../components/channel/ChannelPanel.js";
 import { buildChannelView } from "../../lib/channel-view.js";
 import { loadSeed } from "../../lib/seed.js";
+import { LAYOUT, TYPE } from "../../lib/theme.js";
 
 export const metadata: Metadata = {
   title: "渠道下钻 · 餐饮经营分析",
@@ -40,11 +42,11 @@ export default function Page() {
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
-        <section className="rounded-2xl border border-slate-200/70 bg-white/60 px-5 py-4 text-[15px] leading-7 text-slate-600">
+      <div className={LAYOUT.container}>
+        <PageIntro>
           <span className="font-medium text-slate-800">这一页只看两件事：</span>
           渠道收入涨在哪、新客投放还值不值得加钱。{view.summary}
-        </section>
+        </PageIntro>
 
         <ChannelPanel
           rows={view.channels}
@@ -90,7 +92,7 @@ export default function Page() {
           </p>
         </NoteCard>
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{seed.meta.source_file} · 工作表「
           {[...new Set([seed.channelSheet, seed.acquisitionSheet, seed.funnelSheet])].join("」「")}」 ·
           单位：{view.unit}。渠道收入为两期真数，漏斗仅覆盖 {view.funnelMonth}、产投比为预算目标值；

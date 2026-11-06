@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
 import { NoteCard } from "../../components/NoteCard.js";
+import { PageIntro } from "../../components/PageIntro.js";
 import { RevenueHeader } from "../../components/RevenueHeader.js";
 import { BundleDecompositionPanel } from "../../components/product/BundleDecompositionPanel.js";
 import { CategoryMixPanel } from "../../components/product/CategoryMixPanel.js";
 import { formatPercent, formatSignedInteger } from "../../lib/format.js";
 import { loadSeed } from "../../lib/seed.js";
 import { buildProductView } from "../../lib/product-view.js";
+import { LAYOUT, TYPE } from "../../lib/theme.js";
 
 export const metadata: Metadata = {
   title: "产品下钻 · 餐饮经营分析",
@@ -44,13 +46,13 @@ export default function Page() {
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
-        <section className="rounded-2xl border border-slate-200/70 bg-white/60 px-5 py-4 text-[15px] leading-7 text-slate-600">
+      <div className={LAYOUT.container}>
+        <PageIntro>
           <span className="font-medium text-slate-800">系列看结构，套餐看量价：</span>
           系列层的 2024 单价在源表缺失、2024 收入是按本期单价反推的，在这一层做销量 × 单价分解，
           每个系列都会得到同一个假涨幅。所以系列层只讲销量结构，真正的量价分解放在套餐层——
           套餐的销量与销售额两期都是源表真数，单价可以由「销售额 ÷ 销量」实算。
-        </section>
+        </PageIntro>
 
         <CategoryMixPanel
           rows={view.categories}
@@ -67,14 +69,12 @@ export default function Page() {
 
         <section className="card-surface relative overflow-hidden rounded-2xl p-6 lg:p-7" aria-labelledby="conclusion-title">
           <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-teal-400 to-blue-500" />
-          <h2 id="conclusion-title" className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
-            一行结论
-          </h2>
-          <p className="mt-3 text-xl leading-9 text-slate-800 lg:text-[1.375rem]">{view.insights.conclusion}</p>
+          <h2 id="conclusion-title" className={TYPE.calloutTitle}>一行结论</h2>
+          <p className={`mt-3 ${TYPE.calloutBody}`}>{view.insights.conclusion}</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3">
               <p className="text-sm font-medium text-amber-900">引流款 · {leadgen.count} 个</p>
-              <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-amber-900">
+              <p className={`mt-1 ${TYPE.numberSm} text-amber-900`}>
                 {formatSignedInteger(leadgen.amountDelta)}
                 <span className="ml-1 text-xs font-normal">元</span>
               </p>
@@ -82,7 +82,7 @@ export default function Page() {
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
               <p className="text-sm font-medium text-slate-700">正价套餐 · {regular.count} 个</p>
-              <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-slate-900">
+              <p className={`mt-1 ${TYPE.numberSm} text-slate-900`}>
                 {formatSignedInteger(regular.amountDelta)}
                 <span className="ml-1 text-xs font-normal">元</span>
               </p>
@@ -116,7 +116,7 @@ export default function Page() {
           </p>
         </NoteCard>
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{seed.meta.source_file} · 工作表「
           {[...new Set([seed.categorySheet, seed.bundleSheet])].join("」「")}」 · 单位：系列与收入为
           {view.unit}，套餐金额与量价影响为元。2025 收入为源表值，2024 收入为推算值；样例数据仅供演示。

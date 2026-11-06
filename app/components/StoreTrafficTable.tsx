@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { formatAmount, formatInteger, formatSignedAmount, formatSignedInteger } from "../lib/format.js";
 import type { StoreTrafficRow } from "../lib/metrics/types.js";
+import { TYPE } from "../lib/theme.js";
 import { ClickableRow } from "./ClickableRow.js";
 import { DeltaValue } from "./DeltaValue.js";
 import { Panel } from "./Panel.js";
@@ -40,20 +41,33 @@ export function StoreTrafficTable({
       description="按收入差降序。收入差取门店表；客流影响 = 客流差 × 上期客单价，客单价影响 = 本期客流 × 客单价差。点击行下钻门店。"
     >
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1000px] border-collapse text-left text-[15px]">
+        <table className="w-full min-w-[1000px] border-collapse text-left text-body">
           <caption className="sr-only">{rows.length} 家同店客流与客单价拆解明细</caption>
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
-              <th scope="col" className="py-3 pr-4 text-left font-medium">门店</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">本期客流</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">上期客流</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">客流差</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">本期客单</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">上期客单</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">客单差</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">客流影响</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">客单影响</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">收入差</th>
+            <tr className={`border-b border-slate-100 ${TYPE.tableHead}`}>
+              <th rowSpan={2} scope="col" className="py-3 pr-4 text-left align-bottom font-medium">
+                门店
+              </th>
+              <th colSpan={3} scope="colgroup" className="px-3 pb-1 pt-3 text-center font-medium">
+                客流（人次）
+              </th>
+              <th colSpan={3} scope="colgroup" className="px-3 pb-1 pt-3 text-center font-medium">
+                客单价（元/人次）
+              </th>
+              <th colSpan={3} scope="colgroup" className="px-3 pb-1 pt-3 text-center font-medium">
+                影响与收入差（{unit}）
+              </th>
+            </tr>
+            <tr className={`border-b border-slate-200 ${TYPE.tableHeadNested}`}>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">本期</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">上期</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">客流差</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">本期</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">上期</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">客单差</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">客流影响</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">客单影响</th>
+              <th scope="col" className="px-3 pb-2 text-right font-medium">收入差</th>
             </tr>
           </thead>
           <tbody>
@@ -139,8 +153,8 @@ export function StoreTrafficTable({
         </table>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-500">
-        客单价列单位为元/人次，影响额与收入差单位为{unit}。合计行的客单价为按客流加权的平均值。
+      <p className={`mt-4 ${TYPE.note}`}>
+        客单价列单位为元/人次，客流列为消费人次，影响额与收入差单位为{unit}。合计行的客单价为按客流加权的平均值。
         逐店「客流影响 + 客单影响」与收入差存在 ≤0.46 万元的差异，来自 2024 年客流在源表中的整数取整。
       </p>
     </Panel>

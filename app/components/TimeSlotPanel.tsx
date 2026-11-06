@@ -1,5 +1,6 @@
 import { formatInteger, formatSignedInteger, formatSignedPercent } from "../lib/format.js";
 import type { TimeSlotComparison, TimeSlotGroup } from "../lib/metrics/types.js";
+import { TYPE } from "../lib/theme.js";
 import { DeltaValue } from "./DeltaValue.js";
 import { Panel } from "./Panel.js";
 
@@ -34,10 +35,10 @@ export function TimeSlotPanel({
         {groups.map((group) => (
           <div key={group.dayType} className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 lg:p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-200/70 pb-3">
-              <h3 className="text-lg font-semibold text-slate-900">{group.dayType}</h3>
+              <h3 className={TYPE.cardTitle}>{group.dayType}</h3>
               <div className="flex items-baseline gap-2 text-sm">
                 <span className="font-mono tabular-nums text-slate-500">
-                  {formatInteger(group.previous)} → {formatInteger(group.current)}
+                  {formatInteger(group.previous)} → {formatInteger(group.current)} 人次/日
                 </span>
                 <DeltaValue
                   value={group.delta}
@@ -56,7 +57,7 @@ export function TimeSlotPanel({
                 return (
                   <div key={`${slot.dayType}-${slot.span}`}>
                     <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                      <span className="text-[15px] font-medium text-slate-800">
+                      <span className="text-body font-medium text-slate-800">
                         {slotName(slot)}
                         <span className="ml-2 font-mono text-xs font-normal text-slate-400">
                           {slot.span}
@@ -77,7 +78,7 @@ export function TimeSlotPanel({
 
                     <div className="mt-2 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="w-9 shrink-0 text-right font-mono text-[10px] text-slate-400">2024</span>
+                        <span className="w-9 shrink-0 text-right font-mono text-nano text-slate-400">2024</span>
                         <div className="h-3 flex-1 overflow-hidden rounded-sm bg-white">
                           <div
                             className="h-full rounded-sm bg-slate-300"
@@ -86,10 +87,10 @@ export function TimeSlotPanel({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="w-9 shrink-0 text-right font-mono text-[10px] text-slate-400">2025</span>
+                        <span className="w-9 shrink-0 text-right font-mono text-nano text-slate-400">2025</span>
                         <div className="h-3 flex-1 overflow-hidden rounded-sm bg-white">
                           <div
-                            className={`h-full rounded-sm ${up ? "bg-emerald-500" : "bg-rose-500"}`}
+                            className={`h-full rounded-sm ${up ? "bg-up" : "bg-down"}`}
                             style={{ width: `${(slot.current / maxValue) * 100}%` }}
                           />
                         </div>
@@ -104,7 +105,7 @@ export function TimeSlotPanel({
       </div>
 
       <div className="mt-5 flex items-start gap-3 rounded-lg border border-teal-100 bg-teal-50/60 px-4 py-3">
-        <span className="mt-0.5 rounded bg-teal-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+        <span className="mt-0.5 rounded bg-teal-600 px-1.5 py-0.5 text-micro font-semibold text-white">
           洞察
         </span>
         <p className="text-sm leading-6 text-teal-900">{insight}</p>

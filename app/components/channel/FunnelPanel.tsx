@@ -1,6 +1,7 @@
 import { formatInteger, formatPercent } from "../../lib/format.js";
 import type { FunnelRates, FunnelSummary } from "../../lib/metrics/types.js";
 import type { FunnelStoreRow } from "../../lib/channel-view.js";
+import { TYPE } from "../../lib/theme.js";
 import { Panel } from "../Panel.js";
 
 function countText(value: number | null): string {
@@ -79,14 +80,14 @@ export function FunnelPanel({
       title="点评漏斗 · 曝光 → 消费"
       description={`${storeCount} 家在营门店的线上曝光与转化。汇总口径为「总量之比」：先逐级加总人数，再用汇总人数算转化率。`}
       actions={
-        <span className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
-          {month} · {storeCount} 家门店
+        <span className={`rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 ${TYPE.note}`}>
+          <span className="font-mono tabular-nums">{month} · {storeCount}</span> 家门店
         </span>
       }
     >
       {hasComparison ? null : (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-          <span className="rounded bg-amber-500 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+          <span className="rounded bg-amber-500 px-1.5 py-0.5 text-micro font-semibold text-white">
             仅 {month}（{monthLabel}）本期
           </span>
           <span>
@@ -100,7 +101,7 @@ export function FunnelPanel({
         {stages.map((stage) => (
           <div key={stage.key} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
             <p className="text-sm font-medium text-slate-600">{stage.label}</p>
-            <p className="mt-2 whitespace-nowrap font-mono text-2xl font-semibold leading-none tabular-nums text-slate-900">
+            <p className={`mt-2 whitespace-nowrap ${TYPE.numberMd} text-slate-900`}>
               {countText(stage.value)}
               <span className="ml-1 text-xs font-normal text-slate-500">人</span>
             </p>
@@ -130,18 +131,18 @@ export function FunnelPanel({
       </div>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[980px] border-collapse text-left text-[15px]">
+        <table className="w-full min-w-[1080px] border-collapse text-left text-body">
           <caption className="sr-only">{storeCount} 家门店的曝光、访问、支付、消费四级人数与三级转化率</caption>
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
+            <tr className={`border-b border-slate-200 ${TYPE.tableHead}`}>
               <th scope="col" className="py-3 pr-4 text-left font-medium">门店</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">曝光</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">访问</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">支付</th>
-              <th scope="col" className="px-3 py-3 text-right font-medium">消费</th>
+              <th scope="col" className="px-3 py-3 text-right font-medium">曝光（人）</th>
+              <th scope="col" className="px-3 py-3 text-right font-medium">访问（人）</th>
+              <th scope="col" className="px-3 py-3 text-right font-medium">支付（人）</th>
+              <th scope="col" className="px-3 py-3 text-right font-medium">消费（人）</th>
               {RATE_COLUMNS.map((column) => (
                 <th key={column.label} scope="col" className="px-3 py-3 text-right font-medium">
-                  {column.label}
+                  {column.label}（%）
                 </th>
               ))}
             </tr>
@@ -200,7 +201,7 @@ export function FunnelPanel({
         </table>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-500">
+      <p className={`mt-4 ${TYPE.note}`}>
         逐店明细按门店编号排序（与源表行序一致）。转化率 = 后一级人数 ÷ 前一级人数，与汇总行同口径。
         {mobileStores > 0 ? `其中 ${mobileStores} 家门店源表缺支付及之后数据（记为「—」），汇总时跳过，不按 0 计。` : ""}
       </p>

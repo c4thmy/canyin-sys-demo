@@ -1,5 +1,6 @@
-import { formatAmount, formatSignedAmount } from "../lib/format.js";
+import { formatAmount, formatPercent, formatSignedAmount } from "../lib/format.js";
 import type { StoreDetailView } from "../lib/store-view.js";
+import { LAYOUT, TYPE } from "../lib/theme.js";
 import { DeltaValue } from "./DeltaValue.js";
 import { Panel } from "./Panel.js";
 
@@ -30,14 +31,12 @@ export function StoreEffectPanel({ view }: { view: StoreDetailView }) {
       label: "客流差影响",
       value: effects.trafficEffect,
       share: effects.trafficShare,
-      fill: "bg-gradient-to-r from-teal-600 to-emerald-500",
     },
     {
       key: "ticket",
       label: "客单差影响",
       value: effects.ticketEffect,
       share: effects.ticketShare,
-      fill: "bg-gradient-to-r from-cyan-500 to-sky-500",
     },
   ];
 
@@ -54,42 +53,45 @@ export function StoreEffectPanel({ view }: { view: StoreDetailView }) {
           return (
             <div key={row.key}>
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[15px] text-slate-600">{row.label}</span>
-                <span className="font-mono text-lg font-semibold tabular-nums">
-                  <DeltaValue value={row.value} text={`${formatSignedAmount(row.value)} 万`} />
+                <span className="text-body text-slate-600">{row.label}</span>
+                <span className={TYPE.numberSm}>
+                  <DeltaValue value={row.value} text={`${formatSignedAmount(row.value)} 万元`} />
                   <span className="ml-2 text-xs font-normal text-slate-400">
-                    占 {((row.share ?? 0) * 100).toFixed(2)}%
+                    占 {formatPercent(row.share)}
                   </span>
                 </span>
               </div>
               <div className="mt-2 h-9 overflow-hidden rounded-lg border border-slate-200/70 bg-slate-100">
-                <div className={`h-full rounded-md ${row.fill}`} style={{ width: `${Math.min(100, width)}%` }} />
+                <div
+                  className={`h-full rounded-md ${row.value >= 0 ? "bg-up" : "bg-down"}`}
+                  style={{ width: `${Math.min(100, width)}%` }}
+                />
               </div>
             </div>
           );
         })}
       </div>
 
-      <dl className="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:grid-cols-3">
+      <dl className={`mt-6 grid gap-3 ${LAYOUT.inset} p-4 sm:grid-cols-3`}>
         <div>
           <dt className="text-xs text-slate-500">两项合计</dt>
-          <dd className="mt-1 font-mono text-xl font-semibold tabular-nums">
-            <DeltaValue value={effects.effectTotal} text={`${formatSignedAmount(effects.effectTotal)} 万`} />
+          <dd className={`mt-1 ${TYPE.numberMd}`}>
+            <DeltaValue value={effects.effectTotal} text={`${formatSignedAmount(effects.effectTotal)} 万元`} />
           </dd>
         </div>
         <div>
           <dt className="text-xs text-slate-500">门店收入差</dt>
-          <dd className="mt-1 font-mono text-xl font-semibold tabular-nums">
-            <DeltaValue value={effects.revenueDelta} text={`${formatSignedAmount(effects.revenueDelta)} 万`} />
+          <dd className={`mt-1 ${TYPE.numberMd}`}>
+            <DeltaValue value={effects.revenueDelta} text={`${formatSignedAmount(effects.revenueDelta)} 万元`} />
           </dd>
         </div>
         <div>
           <dt className="text-xs text-slate-500">取整差额</dt>
-          <dd className="mt-1 font-mono text-xl font-semibold text-amber-700 tabular-nums">{gapLabel}</dd>
+          <dd className={`mt-1 ${TYPE.numberMd} text-amber-700`}>{gapLabel}</dd>
         </div>
       </dl>
 
-      <p className="mt-4 text-sm leading-6 text-slate-500">
+      <p className={`mt-4 ${TYPE.note}`}>
         差额来自 2024 年客流在源表中按整数取整；本期口径「客流 × 客单价」与门店收入一致（误差 &lt; 0.01 万元）。
       </p>
     </Panel>

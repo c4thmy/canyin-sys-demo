@@ -2,6 +2,7 @@ import { formatAmount, formatPercent, formatPoints, formatSignedAmount, formatSi
 import { profitBridge, splitSameNewStore } from "./metrics/index.js";
 import type { ProfitBridgeNode } from "./metrics/types.js";
 import { loadSeed, type SeedPeriod } from "./seed.js";
+import type { MetricKey } from "./theme.js";
 
 export type Tone = "positive" | "negative" | "neutral";
 
@@ -14,6 +15,8 @@ export interface MetricCardView {
   readonly deltaUnit: string;
   readonly note: string;
   readonly tone: Tone;
+  /** 需要口径说明的关键指标；非关键指标留空 */
+  readonly metric?: MetricKey;
 }
 
 export interface OverviewView {
@@ -29,6 +32,8 @@ export interface OverviewView {
   readonly previousProfit: number;
   readonly currentProfit: number;
   readonly profitDelta: number;
+  /** 上期边际贡献率（利润桥「收入规模」项的折算系数，2024-09 = 41.87%） */
+  readonly contributionMarginPrevious: number | null;
   readonly summary: string;
 }
 
@@ -141,6 +146,8 @@ export function buildOverview(): OverviewView {
   const profitRate = previousProfit === 0 ? null : profitDelta / previousProfit;
 
   const sameStore = splitSameNewStore(stores, periodPair);
+  const revenueEffect = bridge.find((node) => node.key === "revenue")?.effect ?? 0;
+  const contributionMarginPrevious = revenueDelta === 0 ? null : revenueEffect / revenueDelta;
 
   const cards: readonly MetricCardView[] = [
     {
@@ -152,6 +159,7 @@ export function buildOverview(): OverviewView {
       deltaUnit: meta.currency_unit,
       note: `同比 ${formatSignedPercent(revenueRate)}`,
       tone: toneOf(revenueDelta),
+      metric: "revenue",
     },
     {
       key: "profit",
@@ -162,6 +170,7 @@ export function buildOverview(): OverviewView {
       deltaUnit: meta.currency_unit,
       note: `同比 ${formatSignedPercent(profitRate)}`,
       tone: toneOf(profitDelta),
+      metric: "profit",
     },
     {
       key: "foodCostRate",
@@ -172,6 +181,7 @@ export function buildOverview(): OverviewView {
       deltaUnit: "个百分点",
       note: `上年同期 ${formatPercent(foodRate0)}`,
       tone: toneOf(foodRateChange, false),
+      metric: "foodCostRate",
     },
     {
       key: "sameStoreGrowth",
@@ -182,6 +192,7 @@ export function buildOverview(): OverviewView {
       deltaUnit: meta.currency_unit,
       note: `同比 · 同店收入 ${formatAmount(sameStore.sameStore.current)} ${meta.currency_unit}`,
       tone: toneOf(sameStore.sameStore.delta),
+      metric: "sameStoreGrowth",
     },
   ];
 
@@ -198,6 +209,7 @@ export function buildOverview(): OverviewView {
     previousProfit,
     currentProfit,
     profitDelta,
+    contributionMarginPrevious,
     summary: buildSummary(bridge, revenueDelta, foodRateChange, meta.currency_unit),
   };
 }

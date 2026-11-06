@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import type { InsightOrigin } from "../../lib/metrics/index.js";
 import { formatAmount, formatPercent, formatSignedAmount } from "../../lib/format.js";
+import { LAYOUT, TYPE } from "../../lib/theme.js";
+import { DeltaValue } from "../DeltaValue.js";
 import { Panel } from "../Panel.js";
 
 /**
@@ -54,25 +56,33 @@ export function OriginPanel({
                 >
                   {origin.rank}
                 </span>
-                <span className="rounded-full border border-teal-200 bg-white/80 px-2 py-0.5 text-[11px] font-medium text-teal-700">
+                <span className="rounded-full border border-teal-200 bg-white/80 px-2 py-0.5 text-micro font-medium text-teal-700">
                   前 3 高亮
                 </span>
               </div>
 
               <p className="mt-4 text-sm font-medium text-slate-500">{origin.label}</p>
-              <p className="mt-1 font-mono text-3xl font-semibold tracking-tight text-slate-900 tabular-nums">
-                {formatSignedAmount(origin.amount)}
-                <span className="ml-1.5 text-sm font-normal text-slate-500">{unit}</span>
+              <p className={`mt-1 ${TYPE.numberLg}`}>
+                <DeltaValue value={origin.amount} text={formatSignedAmount(origin.amount)} />
+                <span className="ml-1.5 font-sans text-sm font-normal text-slate-500">{unit}</span>
               </p>
 
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/90">
                 <div
-                  className={`h-full rounded-full ${isTop ? "bg-teal-500" : "bg-teal-400"}`}
+                  className={`h-full rounded-full ${
+                    origin.amount >= 0
+                      ? isTop
+                        ? "bg-up"
+                        : "bg-up/60"
+                      : isTop
+                        ? "bg-down"
+                        : "bg-down/60"
+                  }`}
                   style={{ width: `${width}%` }}
                 />
               </div>
               <p className="mt-2 text-xs text-slate-500">
-                占营业收入增量 {formatPercent(origin.share)}
+                占营业收入增量 <span className="font-mono tabular-nums">{formatPercent(origin.share)}</span>
               </p>
               <p className="mt-3 text-sm leading-6 text-slate-600">{origin.note}</p>
 
@@ -84,7 +94,7 @@ export function OriginPanel({
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm leading-6 text-slate-600">
+      <div className={`mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 ${LAYOUT.inset} px-4 py-3 text-sm leading-6 text-slate-600`}>
         <span>
           三项合计 <span className="font-mono font-semibold text-slate-800 tabular-nums">{formatSignedAmount(originTotal)} {unit}</span>
         </span>

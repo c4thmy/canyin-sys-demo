@@ -82,7 +82,7 @@ export function StructureBoard({ view }: { view: StructureView }) {
                 onClick={() => selectTab(tab.key)}
                 onKeyDown={(event) => onKeyDown(event, index)}
                 className={[
-                  "flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[15px] font-medium transition lg:px-5",
+                  "flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-body font-medium transition lg:px-5",
                   isActive
                     ? "bg-teal-600 text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
@@ -91,7 +91,7 @@ export function StructureBoard({ view }: { view: StructureView }) {
                 <span>{tab.label}</span>
                 <span
                   className={[
-                    "rounded-full px-2 py-0.5 font-mono text-[11px] tabular-nums",
+                    "rounded-full px-2 py-0.5 font-mono text-micro tabular-nums",
                     isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500",
                   ].join(" ")}
                 >

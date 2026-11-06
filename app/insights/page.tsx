@@ -12,6 +12,7 @@ import {
   formatSignedPercent,
 } from "../lib/format.js";
 import { buildInsightsView } from "../lib/insights-view.js";
+import { LAYOUT, TYPE } from "../lib/theme.js";
 import type { InsightSeverity } from "../lib/metrics/index.js";
 
 export const metadata: Metadata = {
@@ -56,9 +57,9 @@ export default function Page() {
         unit={view.unit}
       />
 
-      <div className="mx-auto max-w-[1440px] space-y-6 px-6 py-8 lg:px-10">
+      <div className={LAYOUT.container}>
         <section
-          className="card-surface relative overflow-hidden rounded-2xl p-6 lg:p-8"
+          className={`${LAYOUT.card} ${LAYOUT.cardPadding} relative overflow-hidden`}
           aria-labelledby="headline-title"
         >
           <div
@@ -67,32 +68,28 @@ export default function Page() {
           />
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
-                本期一句话总纲
-              </p>
+              <p className={TYPE.calloutTitle}>本期一句话总纲</p>
               <h2 id="headline-title" className="mt-1 text-base text-slate-500">
                 本期经营结果 + 最核心的一个判断
               </h2>
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
-                严重 <span className="font-mono font-semibold text-rose-600">{view.counts.critical}</span>
+                严重 <span className="font-mono font-semibold text-down">{view.counts.critical}</span>
                 <span className="mx-1.5 text-slate-300">·</span>
                 关注 <span className="font-mono font-semibold text-amber-600">{view.counts.warning}</span>
                 <span className="mx-1.5 text-slate-300">·</span>
-                正向 <span className="font-mono font-semibold text-emerald-600">{view.counts.positive}</span>
+                正向 <span className="font-mono font-semibold text-up">{view.counts.positive}</span>
               </span>
             </div>
           </div>
 
-          <p className="mt-4 max-w-5xl text-xl leading-9 text-slate-800 lg:text-[1.5rem] lg:leading-10">
-            {view.headline}
-          </p>
+          <p className={`mt-4 max-w-5xl ${TYPE.heroStatement}`}>{view.headline}</p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
               <p className="text-xs text-slate-500">营业收入 · {view.currentLabel}</p>
-              <p className="mt-1 font-mono text-2xl font-semibold leading-none text-slate-900 tabular-nums">
+              <p className={`mt-1 ${TYPE.numberMd} text-slate-900`}>
                 {formatAmount(facts.revenue.current)}
                 <span className="ml-1 text-sm font-normal text-slate-500">{view.unit}</span>
               </p>
@@ -104,7 +101,7 @@ export default function Page() {
 
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
               <p className="text-xs text-slate-500">营业利润 · {view.currentLabel}</p>
-              <p className="mt-1 font-mono text-2xl font-semibold leading-none text-slate-900 tabular-nums">
+              <p className={`mt-1 ${TYPE.numberMd} text-slate-900`}>
                 {formatAmount(facts.profit.current)}
                 <span className="ml-1 text-sm font-normal text-slate-500">{view.unit}</span>
               </p>
@@ -115,13 +112,13 @@ export default function Page() {
 
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
               <p className="text-xs text-slate-500">同店收入同比</p>
-              <p className="mt-1 font-mono text-2xl font-semibold leading-none text-slate-900 tabular-nums">
+              <p className={`mt-1 ${TYPE.numberMd} text-slate-900`}>
                 {formatSignedAmount(facts.sameStore.revenueDelta)}
                 <span className="ml-1 text-sm font-normal text-slate-500">{view.unit}</span>
               </p>
               <p className="mt-1.5 text-xs leading-5 text-slate-500">
-                客流影响 {formatSignedAmount(facts.sameStore.trafficEffect)} · 客单价影响{" "}
-                {formatSignedAmount(facts.sameStore.ticketEffect)}
+                客流影响 {formatSignedAmount(facts.sameStore.trafficEffect)} {view.unit} · 客单价影响{" "}
+                {formatSignedAmount(facts.sameStore.ticketEffect)} {view.unit}
               </p>
             </div>
           </div>
@@ -139,11 +136,11 @@ export default function Page() {
             <div className="min-w-0">
               <h2
                 id="insight-list-title"
-                className="text-2xl font-semibold tracking-tight text-slate-900"
+                className={TYPE.sectionTitle}
               >
                 结论卡片
               </h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">
+              <p className={`mt-1 ${TYPE.note}`}>
                 按严重度排序：严重 → 关注 → 正向。卡片里的数字可点击，跳到产生该数字的下钻页。
               </p>
             </div>
@@ -210,7 +207,7 @@ export default function Page() {
           </p>
         </NoteCard>
 
-        <footer className="pb-10 pt-2 text-sm leading-6 text-slate-500">
+        <footer className={`pb-10 pt-2 ${TYPE.note}`}>
           数据来源：{view.sourceFile} · 工作表「{view.sheets.join("」「")}」 · 单位：{view.unit}。
           结论由七条规则自动生成；样例数据仅供演示。
         </footer>

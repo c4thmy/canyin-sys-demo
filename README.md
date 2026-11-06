@@ -51,10 +51,30 @@ openspec archive <name>    # 完成并归档
 openspec list
 openspec view
 
-# 产品（开发中）
-pnpm install
-pnpm dev
+# 本地运行
+npm install
+npm run dev          # http://localhost:3000
+
+# 冒烟（构建 + 起服务 + 断言 7 条路由）
+bash scripts/smoke.sh
+
+# 容器化（需 Docker Desktop 运行中）
+bash scripts/smoke.sh --docker
 ```
+
+## 页面
+
+| 路由 | 内容 |
+|---|---|
+| `/` | 经营总览：指标卡 + 利润桥瀑布图 |
+| `/revenue/structure` | 收入结构：同店/新店 · 渠道 · 区域 · 门店 |
+| `/revenue/same-store` | 同店异动：客流 × 客单价分解 + 13 店明细 + 时段客流 |
+| `/revenue/store/[id]` | 门店详情：三项对比 + 同店横向比较 |
+| `/revenue/channel` | 渠道下钻：收入同比 + 新客成本/产投比 + 点评漏斗 |
+| `/revenue/product` | 产品下钻：系列销量结构 + 套餐量价分解 |
+| `/insights` | 结论与计划：自动结论 + 行动建议 |
+
+演示材料在 `docs/demo/`，含 15 分钟脚本与答疑清单。
 
 ## 角色
 

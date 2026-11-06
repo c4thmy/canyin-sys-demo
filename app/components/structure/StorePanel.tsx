@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { formatAmount, formatPercent, formatSignedAmount, formatSignedPercent } from "../../lib/format.js";
 import type { StoreStructureRow } from "../../lib/metrics/types.js";
+import { TYPE } from "../../lib/theme.js";
 import { ClickableRow } from "../ClickableRow.js";
 import { DeltaValue } from "../DeltaValue.js";
 import { NewBadge } from "../NewBadge.js";
@@ -30,15 +31,15 @@ export function StorePanel({
       description={`${stores.length} 家门店（含 ${stores.filter((store) => store.isNew).length} 家新店）· 默认按同比差额降序 · 点击任意门店行下钻详情`}
     >
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[880px] border-collapse text-left text-[15px]">
+        <table className="w-full min-w-[980px] border-collapse text-left text-body">
           <caption className="sr-only">{stores.length} 家门店收入结构，含本期、上期、同比差额与占同店比</caption>
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
+            <tr className={`border-b border-slate-200 ${TYPE.tableHead}`}>
               <th scope="col" className="py-3 pr-4 font-medium">门店</th>
               <th scope="col" className="px-4 py-3 font-medium">区域</th>
               <th scope="col" className="px-4 py-3 text-right font-medium">本期（{unit}）</th>
               <th scope="col" className="px-4 py-3 text-right font-medium">上期（{unit}）</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">同比差额</th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">同比差额（{unit}）</th>
               <th scope="col" className="px-4 py-3 text-right font-medium">增减率</th>
               <th scope="col" className="px-4 py-3 text-right font-medium">占同店比</th>
             </tr>
@@ -84,7 +85,7 @@ export function StorePanel({
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-slate-200 text-[15px] font-semibold text-slate-900">
+            <tr className="border-t-2 border-slate-200 text-body font-semibold text-slate-900">
               <th scope="row" className="py-3.5 pr-4 text-left">合计</th>
               <td className="px-4 py-3.5 text-slate-500">{stores.length} 家</td>
               <td className="px-4 py-3.5 text-right font-mono tabular-nums">{formatAmount(totals.revenue)}</td>
@@ -105,7 +106,7 @@ export function StorePanel({
           </tfoot>
         </table>
       </div>
-      <p className="mt-4 text-sm leading-6 text-slate-500">
+      <p className={`mt-4 ${TYPE.note}`}>
         占同店比的分母为 {sameStoreCount} 家同店本期收入合计；新店不参与同店占比与排名。
         收入口径取门店表（{formatAmount(totals.revenue)} {unit}），与新店、同店拆分一致。
       </p>

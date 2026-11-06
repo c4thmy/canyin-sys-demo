@@ -1,6 +1,7 @@
 import { formatAmount, formatSignedPercent } from "../lib/format.js";
 import type { StoreDetailView } from "../lib/store-view.js";
 import { describeTicketGap, describeTrafficGrowthGap } from "../lib/store-view.js";
+import { TYPE } from "../lib/theme.js";
 import { Panel } from "./Panel.js";
 
 function TicketRows({ benchmark }: { benchmark: StoreDetailView["benchmark"] }) {
@@ -88,41 +89,41 @@ export function PeerComparisonPanel({ view }: { view: StoreDetailView }) {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <section aria-labelledby="peer-ticket-title">
-          <h3 id="peer-ticket-title" className="text-sm font-semibold text-slate-800">
+          <h3 id="peer-ticket-title" className={TYPE.subhead}>
             客单价 vs 同店平均
           </h3>
           <div className="mt-3">
             <TicketRows benchmark={benchmark} />
           </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">{describeTicketGap(benchmark)}</p>
+          <p className={`mt-3 ${TYPE.note}`}>{describeTicketGap(benchmark)}</p>
           <p className="mt-1 text-xs text-slate-400">同店平均 = {benchmark.sameStoreCount} 家同店按客流加权，本期。</p>
         </section>
 
         <section aria-labelledby="peer-growth-title">
-          <h3 id="peer-growth-title" className="text-sm font-semibold text-slate-800">
+          <h3 id="peer-growth-title" className={TYPE.subhead}>
             客流增速 vs 同店平均
           </h3>
           <div className="mt-3">
             <GrowthRows benchmark={benchmark} />
           </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">{describeTrafficGrowthGap(benchmark)}</p>
+          <p className={`mt-3 ${TYPE.note}`}>{describeTrafficGrowthGap(benchmark)}</p>
           <p className="mt-1 text-xs text-slate-400">增速 = 本期客流 ÷ 上年同期客流 − 1。</p>
         </section>
 
         <section aria-labelledby="peer-rank-title">
-          <h3 id="peer-rank-title" className="text-sm font-semibold text-slate-800">
+          <h3 id="peer-rank-title" className={TYPE.subhead}>
             同店收入排名
           </h3>
           <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-5">
             {benchmark.revenueRank === null ? (
               <p className="font-mono text-3xl font-semibold text-slate-400">—</p>
             ) : (
-              <p className="font-mono text-3xl font-semibold tracking-tight text-slate-900 tabular-nums">
+              <p className={TYPE.numberLg}>
                 第 {benchmark.revenueRank}
                 <span className="ml-1 text-lg font-normal text-slate-500">/ {benchmark.sameStoreCount} 名</span>
               </p>
             )}
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className={`mt-2 ${TYPE.note}`}>
               {benchmark.revenueRank === null
                 ? "新店不参与同店收入排名"
                 : `按本期收入降序，同店共 ${benchmark.sameStoreCount} 家`}

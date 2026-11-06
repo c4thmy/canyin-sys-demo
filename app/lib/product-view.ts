@@ -138,7 +138,7 @@ export function buildProductView(): ProductView {
 
   const insights = {
     category: biggestQtyMove
-      ? `销量变化最大的是${biggestQtyMove.name}：${formatInteger(biggestQtyMove.qtyPrevious)} → ` +
+      ? `绝对增量最大的是${biggestQtyMove.name}：${formatInteger(biggestQtyMove.qtyPrevious)} → ` +
         `${formatInteger(biggestQtyMove.qtyCurrent)} 份（${formatSignedPercent(biggestQtyMove.qtyDeltaRate)}）`
       : "没有系列数据",
     bundle:

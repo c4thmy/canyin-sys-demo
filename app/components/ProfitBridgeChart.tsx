@@ -9,12 +9,13 @@ import { CanvasRenderer } from "echarts/renderers";
 
 import { formatAmount, formatSignedAmount } from "../lib/format.js";
 import type { ProfitBridgeNode } from "../lib/metrics/types.js";
+import { CHART_COLOR, DATA_COLOR } from "../lib/theme.js";
 
 echarts.use([BarChart, GridComponent, TooltipComponent, AxisPointerComponent, CanvasRenderer]);
 
-const UP_COLOR = "#0f9d76";
-const DOWN_COLOR = "#d64545";
-const TOTAL_COLOR = "#2563eb";
+const UP_COLOR = DATA_COLOR.up;
+const DOWN_COLOR = DATA_COLOR.down;
+const TOTAL_COLOR = DATA_COLOR.total;
 
 function dataIndexOf(params: unknown): number {
   if (typeof params === "object" && params !== null && "dataIndex" in params) {
@@ -70,21 +71,21 @@ function buildOption(nodes: readonly ProfitBridgeNode[], rotate: number): EChart
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow", shadowStyle: { color: "rgba(15, 23, 42, 0.04)" } },
-      backgroundColor: "#0f172a",
+      backgroundColor: CHART_COLOR.tooltipBackground,
       borderWidth: 0,
       padding: [10, 14],
-      textStyle: { color: "#f8fafc", fontSize: 13 },
+      textStyle: { color: CHART_COLOR.tooltipText, fontSize: 13 },
       formatter: tooltipFormatter,
     },
     xAxis: {
       type: "category",
       data: nodes.map((node) => node.label),
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: "#cbd5e1" } },
+      axisLine: { lineStyle: { color: CHART_COLOR.axisLine } },
       axisLabel: {
         interval: 0,
         rotate,
-        color: "#334155",
+        color: CHART_COLOR.categoryLabel,
         fontSize: 13,
         margin: 14,
       },
@@ -93,9 +94,9 @@ function buildOption(nodes: readonly ProfitBridgeNode[], rotate: number): EChart
       type: "value",
       name: "万元",
       nameGap: 18,
-      nameTextStyle: { color: "#64748b", fontSize: 12 },
-      axisLabel: { color: "#64748b", fontSize: 12 },
-      splitLine: { lineStyle: { color: "#e9eff5", type: "dashed" } },
+      nameTextStyle: { color: CHART_COLOR.axisLabel, fontSize: 12 },
+      axisLabel: { color: CHART_COLOR.axisLabel, fontSize: 12 },
+      splitLine: { lineStyle: { color: CHART_COLOR.gridLine, type: "dashed" } },
     },
     series: [
       {
@@ -118,7 +119,7 @@ function buildOption(nodes: readonly ProfitBridgeNode[], rotate: number): EChart
           show: true,
           position: "top",
           distance: 6,
-          color: "#0f172a",
+          color: CHART_COLOR.valueLabel,
           fontSize: 13,
           fontWeight: 600,
           fontFamily: "SFMono-Regular, Menlo, Consolas, monospace",
