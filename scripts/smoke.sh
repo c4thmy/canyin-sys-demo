@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# 演示冒烟：构建并逐条请求 7 条路由，断言 HTTP 200 + 关键文案。
+# 演示冒烟：构建并逐条请求 12 条路由，断言 HTTP 200 + 关键文案。
 #
 #   bash scripts/smoke.sh            # 本机：npm run build + next start -p 3100
 #   bash scripts/smoke.sh --docker   # 容器：docker compose up -d --build（3000）
@@ -47,6 +47,12 @@ ROUTES=(
   "/revenue/channel|增收提价"
   "/revenue/product|套餐量价分解"
   "/insights|异动原点"
+  "/dashboard|门店收入排行"
+  "/data|导入批次"
+  "/data/templates|门店收入模板"
+  "/data/import|上传并解析"
+  "/reports|生成报告"
+  "/reports/templates|老板版"
 )
 
 log() {
@@ -135,7 +141,8 @@ else
   fi
 
   log "==> next start -p ${PORT}"
-  ./node_modules/.bin/next start -p "$PORT" -H 127.0.0.1 >"$TMP_DIR/server.log" 2>&1 &
+  # 用临时数据目录：冒烟始终跑在演示数据上，不受本机已导入数据影响
+  CANYIN_DATA_DIR="$TMP_DIR/uploads" ./node_modules/.bin/next start -p "$PORT" -H 127.0.0.1 >"$TMP_DIR/server.log" 2>&1 &
   SERVER_PID=$!
 fi
 

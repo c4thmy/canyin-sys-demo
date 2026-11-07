@@ -7,3 +7,9 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    # 导入批次、数据集与报告快照持久化；不挂卷则容器重建后数据丢失
+    volumes:
+      - uploads:/app/data/uploads
+
+volumes:
+  uploads:

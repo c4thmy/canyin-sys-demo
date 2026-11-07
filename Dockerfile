@@ -34,6 +34,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # data/seed 是运行时数据源（loadSeed 读取 process.cwd()/data/seed），必须进镜像
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
+# 运行时写入目录（导入数据与报告），由 compose 挂卷持久化
+RUN mkdir -p /app/data/uploads && chown nextjs:nodejs /app/data/uploads
 
 USER nextjs
 EXPOSE 3000
