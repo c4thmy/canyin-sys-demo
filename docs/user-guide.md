@@ -39,7 +39,17 @@ bash scripts/smoke.sh            # 本机：构建 + 起 3100 端口 + 断言 13
 bash scripts/smoke.sh --docker   # 容器：compose 构建 + 断言 + 自动 down
 ```
 
-> `--docker` 模式本次开发未在本机验证过（当时 Docker 守护进程未运行），首次使用请留意输出。
+> `--docker` 模式固定使用 3000 端口。如果本机 3000 已被占用（比如 `npm run dev` 还开着），compose 会报 `address already in use`，先停掉占用的进程再跑。也可以临时换端口：
+>
+> ```bash
+> cat > /tmp/override.yml <<'YML'
+> services:
+>   web:
+>     ports: !override
+>       - "3300:3000"
+> YML
+> docker compose -f docker-compose.yml -f /tmp/override.yml up -d --build   # http://localhost:3300
+> ```
 
 ### 1.3 环境变量
 
