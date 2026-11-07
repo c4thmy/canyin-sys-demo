@@ -1,6 +1,7 @@
 import { formatAmount, formatPercent, formatPoints, formatSignedAmount, formatSignedPercent } from "./format.js";
 import { profitBridge, splitSameNewStore } from "./metrics/index.js";
 import type { ProfitBridgeNode } from "./metrics/types.js";
+import { analysisPeriods } from "./dataset-status.js";
 import { loadSeed, type SeedPeriod } from "./seed.js";
 import type { MetricKey } from "./theme.js";
 
@@ -112,13 +113,13 @@ function buildSummary(
 
 /** 组装经营总览页的数据：指标卡 + 利润桥 + 自动小结，全部来自 data/seed */
 export function buildOverview(): OverviewView {
-  const { meta, pnl, stores, pnlSheet } = loadSeed();
-  const periods = [...meta.periods].sort((a, b) => a.id.localeCompare(b.id));
-  if (periods.length < 2) {
-    throw new Error("meta.json 至少需要两个期间才能做同比");
+  const seed = loadSeed();
+  const { meta, pnl, stores, pnlSheet } = seed;
+  const selected = analysisPeriods(seed);
+  if (!selected) {
+    throw new Error("数据集没有任何期间");
   }
-  const previous = periods[0];
-  const current = periods[periods.length - 1];
+  const { previous, current, periods } = selected;
   const periodPair = { current: current.id, previous: previous.id };
 
   const amounts = new Map(pnl.map((item) => [item.item, item.values]));

@@ -1,5 +1,7 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+
+import { datasetDir, hasImportedDataset, readActive, type DatasetKind } from "./ingestion/active.js";
 
 import type {
   AcquisitionRecord,
@@ -101,6 +103,8 @@ export interface SeedFunnelRecord extends FunnelCounts {
 }
 
 export interface SeedData {
+  /** 数据来源：演示数据或用户导入数据 */
+  readonly dataset: DatasetKind;
   readonly meta: SeedMeta;
   readonly pnl: readonly PnlItem[];
   readonly stores: readonly Store[];
@@ -124,31 +128,55 @@ export interface SeedData {
 
 const SEED_DIR = path.join(process.cwd(), "data", "seed");
 
-function readSeedFile<T>(name: string): T {
-  const file = path.join(SEED_DIR, name);
+/** 当前激活的数据集：未导入或导入目录缺失时回落到演示数据 */
+export function activeDataset(): { kind: DatasetKind; version: number; dir: string } {
+  const active = readActive();
+  if (active.dataset === "imported" && hasImportedDataset()) {
+    return { kind: "imported", version: active.version, dir: datasetDir() };
+  }
+  return { kind: "demo", version: active.version, dir: SEED_DIR };
+}
+
+function readSeedFile<T>(dir: string, name: string): T {
+  const file = path.join(dir, name);
+  if (!existsSync(file)) {
+    // 导入数据集里未开放导入的数据（时段、获客、套餐）按空表处理
+    return { items: [] } as T;
+  }
   return JSON.parse(readFileSync(file, "utf8")) as T;
 }
 
-let cache: SeedData | undefined;
+let cache: { key: string; data: SeedData } | undefined;
 
-/** 服务端读取 data/seed/*.json；同一进程内只读一次 */
+/**
+ * 服务端读取当前激活数据集（data/seed 或 data/uploads/dataset）。
+ * 缓存按「数据集 + 版本号」失效：导入、回滚、切换数据集后自动重读。
+ */
 export function loadSeed(): SeedData {
-  if (cache) {
-    return cache;
+  const { kind, version, dir } = activeDataset();
+  const key = `${kind}:${version}`;
+  if (cache?.key === key) {
+    return cache.data;
   }
+  const data = readDataset(dir, kind);
+  cache = { key, data };
+  return data;
+}
 
-  const meta = readSeedFile<SeedMeta>("meta.json");
-  const pnlFile = readSeedFile<SeedFile<RawPnlItem>>("pnl.json");
-  const storeFile = readSeedFile<SeedFile<RawStore>>("stores.json");
-  const channelFile = readSeedFile<SeedFile<RawChannel>>("channels.json");
-  const categoryFile = readSeedFile<SeedFile<RawCategory>>("categories.json");
-  const trafficFile = readSeedFile<SeedFile<RawTraffic>>("traffic.json");
-  const timeSlotFile = readSeedFile<SeedFile<RawTimeSlot>>("time_slots.json");
-  const acquisitionFile = readSeedFile<SeedFile<RawAcquisition>>("acquisition.json");
-  const bundleFile = readSeedFile<SeedFile<RawBundle>>("bundles.json");
-  const funnelFile = readSeedFile<SeedFile<RawFunnelRecord>>("funnel.json");
+function readDataset(dir: string, kind: DatasetKind): SeedData {
+  const meta = readSeedFile<SeedMeta>(dir, "meta.json");
+  const pnlFile = readSeedFile<SeedFile<RawPnlItem>>(dir, "pnl.json");
+  const storeFile = readSeedFile<SeedFile<RawStore>>(dir, "stores.json");
+  const channelFile = readSeedFile<SeedFile<RawChannel>>(dir, "channels.json");
+  const categoryFile = readSeedFile<SeedFile<RawCategory>>(dir, "categories.json");
+  const trafficFile = readSeedFile<SeedFile<RawTraffic>>(dir, "traffic.json");
+  const timeSlotFile = readSeedFile<SeedFile<RawTimeSlot>>(dir, "time_slots.json");
+  const acquisitionFile = readSeedFile<SeedFile<RawAcquisition>>(dir, "acquisition.json");
+  const bundleFile = readSeedFile<SeedFile<RawBundle>>(dir, "bundles.json");
+  const funnelFile = readSeedFile<SeedFile<RawFunnelRecord>>(dir, "funnel.json");
 
-  cache = {
+  return {
+    dataset: kind,
     meta,
     pnlSheet: pnlFile.provenance?.sheet ?? "",
     storeSheet: storeFile.provenance?.sheet ?? "",
@@ -215,5 +243,4 @@ export function loadSeed(): SeedData {
       consumers: item.consumers,
     })),
   };
-  return cache;
 }

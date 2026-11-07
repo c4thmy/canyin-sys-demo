@@ -13,6 +13,7 @@ import {
 import type { PeerBenchmark, PeriodPair, SameStoreSummary } from "./metrics/types.js";
 import type { MetricCardView, Tone } from "./overview.js";
 import type { StoreTrafficRow } from "./metrics/types.js";
+import { analysisPeriods } from "./dataset-status.js";
 import { loadSeed } from "./seed.js";
 
 export interface StoreDetailView {
@@ -115,12 +116,11 @@ function buildCards(row: StoreTrafficRow): readonly MetricCardView[] {
 /** 组装门店详情页；门店不存在时返回 null，由页面调用 notFound() */
 export function buildStoreDetailView(storeId: string): StoreDetailView | null {
   const seed = loadSeed();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
-  if (periods.length < 2) {
-    throw new Error("meta.json 至少需要两个期间才能做同比");
+  const selected = analysisPeriods(seed);
+  if (!selected) {
+    throw new Error("数据集没有任何期间");
   }
-  const previous = periods[0];
-  const current = periods[periods.length - 1];
+  const { previous, current, periods } = selected;
   const pair: PeriodPair = { current: current.id, previous: previous.id };
 
   const rows = decomposeStoreTraffic(seed.stores, seed.traffic, pair);

@@ -19,6 +19,13 @@ const FIXED_ITEMS = [
 
 const REVENUE_ITEM = "营业收入";
 
+/** 利润表必备的 9 个科目（营业收入 + 4 项变动成本 + 4 项固定成本），导入模板与看板共用 */
+export const PNL_ITEMS: readonly string[] = [
+  REVENUE_ITEM,
+  ...VARIABLE_ITEMS.map((entry) => entry.item),
+  ...FIXED_ITEMS.map((entry) => entry.item),
+];
+
 /**
  * 利润桥：把营业利润同比拆成 9 个因素，返回瀑布图节点。
  *

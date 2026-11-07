@@ -5,6 +5,7 @@ import {
   storeStructure,
 } from "./metrics/index.js";
 import type { AggregateGroup, PeriodPair, RegionStructure, StoreStructureRow } from "./metrics/types.js";
+import { analysisPeriods } from "./dataset-status.js";
 import { loadSeed } from "./seed.js";
 
 export interface StructureSplitCard {
@@ -46,12 +47,11 @@ export interface StructureView {
 /** 组装收入结构页的数据：同店/新店、渠道、区域、门店四个维度，全部来自 data/seed */
 export function buildStructureView(): StructureView {
   const seed = loadSeed();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
-  if (periods.length < 2) {
-    throw new Error("meta.json 至少需要两个期间才能做同比");
+  const selected = analysisPeriods(seed);
+  if (!selected) {
+    throw new Error("数据集没有任何期间");
   }
-  const previous = periods[0];
-  const current = periods[periods.length - 1];
+  const { previous, current, periods } = selected;
   const pair: PeriodPair = { current: current.id, previous: previous.id };
 
   const split = splitSameNewStore(seed.stores, pair);

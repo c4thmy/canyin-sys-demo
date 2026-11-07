@@ -12,6 +12,7 @@ import type {
   CategoryMixRow,
   PeriodPair,
 } from "./metrics/types.js";
+import { analysisPeriods } from "./dataset-status.js";
 import { loadSeed } from "./seed.js";
 
 /** 系列「关注」标记：收入前二 + 销量降幅最大 */
@@ -77,12 +78,11 @@ function emptyKindSummary(kind: BundleKind): BundleKindSummary {
  */
 export function buildProductView(): ProductView {
   const seed = loadSeed();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
-  if (periods.length < 2) {
-    throw new Error("meta.json 至少需要两个期间才能做同比");
+  const selected = analysisPeriods(seed);
+  if (!selected) {
+    throw new Error("数据集没有任何期间");
   }
-  const previous = periods[0];
-  const current = periods[periods.length - 1];
+  const { previous, current, periods } = selected;
   const pair: PeriodPair = { current: current.id, previous: previous.id };
 
   const categories = categoryMix(seed.categories, pair);

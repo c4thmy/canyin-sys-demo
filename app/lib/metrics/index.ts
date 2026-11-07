@@ -10,7 +10,7 @@ export {
 export { funnelRates, funnelSummary } from "./funnel.js";
 export { topContributors } from "./contributors.js";
 export { channelRoi, ROI_THRESHOLDS } from "./roi.js";
-export { profitBridge } from "./profit-bridge.js";
+export { profitBridge, PNL_ITEMS } from "./profit-bridge.js";
 export { storeStructure, regionStructure } from "./structure.js";
 export {
   decomposeStoreTraffic,

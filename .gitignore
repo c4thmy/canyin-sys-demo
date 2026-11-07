@@ -8,3 +8,6 @@ data/*.sqlite
 .env
 .env.local
 *.tsbuildinfo
+
+# 运行时导入数据（批次、数据集、报告快照）
+data/uploads/
