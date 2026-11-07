@@ -41,8 +41,7 @@ openspec validate --all    # 校验
 openspec archive <name>    # 完成并归档
 ```
 
-已归档：`bootstrap-project`（项目初始化）。
-进行中：`add-feishu-channel`（飞书接入）、`add-revenue-analysis-demo`（收入分析 Demo）。
+已归档：`bootstrap-project`（项目初始化）、`add-feishu-channel`（飞书接入）、`add-revenue-analysis-demo`（收入分析 Demo）、`add-data-ingestion-dashboard-report`（数据导入、看板与报告）。
 
 ## 快速开始
 
@@ -55,11 +54,15 @@ openspec view
 npm install
 npm run dev          # http://localhost:3000
 
-# 冒烟（构建 + 起服务 + 断言 7 条路由）
+# 冒烟（构建 + 起服务 + 断言 13 条路由）
 bash scripts/smoke.sh
 
 # 容器化（需 Docker Desktop 运行中）
+docker compose up -d --build   # http://localhost:3000，导入数据存在 uploads 卷
 bash scripts/smoke.sh --docker
+
+# 公网部署前开启登录（并配 HTTPS）
+CANYIN_BASIC_AUTH="用户名:密码" npx next start
 ```
 
 ## 页面
@@ -73,6 +76,13 @@ bash scripts/smoke.sh --docker
 | `/revenue/channel` | 渠道下钻：收入同比 + 新客成本/产投比 + 点评漏斗 |
 | `/revenue/product` | 产品下钻：系列销量结构 + 套餐量价分解 |
 | `/insights` | 结论与计划：自动结论 + 行动建议 |
+| `/dashboard` | 数据看板：KPI 同比/环比 + 多期趋势 + 门店排行 + 数据完整度 |
+| `/data` | 数据中心：数据集切换 + 完整度 + 导入批次（回滚/删除） |
+| `/data/templates` | 6 套导入模板下载 |
+| `/data/import` | 导入向导：上传 → 映射 → 校验 → 生效 |
+| `/reports` | 分析报告：老板版 / 运营版，预览、打印 PDF、导出 HTML |
+
+运行（本机 / Docker）、浏览顺序与页面逻辑详见 [docs/user-guide.md](docs/user-guide.md)。
 
 演示材料在 `docs/demo/`，含 15 分钟脚本与答疑清单。
 
