@@ -14,6 +14,12 @@ import {
 import { buildInsightsView } from "../lib/insights-view.js";
 import { LAYOUT, TYPE } from "../lib/theme.js";
 import type { InsightSeverity } from "../lib/metrics/index.js";
+import { IncompletePage } from "../components/IncompletePage.js";
+import { analysisPeriods, missingFor } from "../lib/dataset-status.js";
+import { loadSeed } from "../lib/seed.js";
+
+/** 数据集可在运行时导入 / 切换，页面每次请求重新计算 */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "结论与计划 · 餐饮经营分析",
@@ -28,6 +34,10 @@ const SEVERITY_RANK: Record<InsightSeverity, number> = {
 };
 
 export default function Page() {
+  const missing = missingFor(loadSeed(), "insights");
+  if (missing.length > 0) {
+    return <IncompletePage title="结论与计划" active="insights" missing={missing} />;
+  }
   const view = buildInsightsView();
   const { facts } = view;
   const insights = [...view.insights].sort(

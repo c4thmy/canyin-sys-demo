@@ -9,6 +9,11 @@ import { formatPercent, formatSignedInteger } from "../../lib/format.js";
 import { loadSeed } from "../../lib/seed.js";
 import { buildProductView } from "../../lib/product-view.js";
 import { LAYOUT, TYPE } from "../../lib/theme.js";
+import { IncompletePage } from "../../components/IncompletePage.js";
+import { analysisPeriods, missingFor } from "../../lib/dataset-status.js";
+
+/** 数据集可在运行时导入 / 切换，页面每次请求重新计算 */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "产品下钻 · 餐饮经营分析",
@@ -16,9 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
+  const missing = missingFor(loadSeed(), "product");
+  if (missing.length > 0) {
+    return <IncompletePage title="产品下钻" active="product" missing={missing} />;
+  }
   const seed = loadSeed();
   const view = buildProductView();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
+  const periods = analysisPeriods(seed)?.periods ?? [];
   const leadgen = view.kindSummary.leadgen;
   const regular = view.kindSummary.regular;
 

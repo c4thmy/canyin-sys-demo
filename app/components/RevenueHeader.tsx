@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import type { SeedPeriod } from "../lib/seed.js";
+import { activeDataset, type SeedPeriod } from "../lib/seed.js";
 import { LAYOUT, TYPE } from "../lib/theme.js";
 import { PeriodSwitch } from "./PeriodSwitch.js";
 
@@ -12,6 +12,9 @@ const NAV = [
   { key: "channel", href: "/revenue/channel", label: "渠道下钻" },
   { key: "product", href: "/revenue/product", label: "产品下钻" },
   { key: "insights", href: "/insights", label: "结论与计划" },
+  { key: "dashboard", href: "/dashboard", label: "数据看板" },
+  { key: "reports", href: "/reports", label: "分析报告" },
+  { key: "data", href: "/data", label: "数据中心" },
 ] as const;
 
 export type RevenueNavKey = (typeof NAV)[number]["key"];
@@ -20,7 +23,8 @@ export type RevenueNavKey = (typeof NAV)[number]["key"];
  * 全站统一页头：标题区 + 期间切换 + 独立一行的导航胶囊。
  *
  * 导航放在标题下单独一行、且不换行（`flex-nowrap` + `whitespace-nowrap`），
- * 保证 1280 宽度下 6 个胶囊仍在一行；更窄的屏幕横向滚动而不是折行。
+ * 保证 1280 宽度下 9 个胶囊仍在一行；更窄的屏幕横向滚动而不是折行。
+ * 右上角始终显示当前数据集（演示 / 导入），点击进入数据中心切换。
  */
 export function RevenueHeader({
   title,
@@ -43,6 +47,7 @@ export function RevenueHeader({
   eyebrow?: string;
   back?: { href: string; label: string };
 }) {
+  const dataset = activeDataset().kind;
   return (
     <header className="hero-panel">
       <div className={LAYOUT.header}>
@@ -68,7 +73,19 @@ export function RevenueHeader({
           </div>
 
           <div className="shrink-0 lg:text-right">
-            <p className="mb-2 text-xs tracking-wide text-slate-400">期间（固定两期对比）</p>
+            <Link
+              href="/data"
+              className={[
+                "mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
+                dataset === "imported"
+                  ? "border-amber-300/50 bg-amber-400/15 text-amber-200 hover:border-amber-300"
+                  : "border-white/15 text-slate-300 hover:border-white/30",
+              ].join(" ")}
+            >
+              <i className={`h-1.5 w-1.5 rounded-full ${dataset === "imported" ? "bg-amber-300" : "bg-teal-300"}`} aria-hidden="true" />
+              {`当前数据集：${dataset === "imported" ? "已导入数据" : "演示数据"}`}
+            </Link>
+            <p className="mb-2 text-xs tracking-wide text-slate-400">期间（本期对比上年同期）</p>
             <PeriodSwitch periods={periods} activeId={activePeriodId} />
             <p className="mt-2 text-xs text-slate-500">上年同期：{previousLabel}</p>
           </div>

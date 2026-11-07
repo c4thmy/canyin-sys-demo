@@ -9,6 +9,11 @@ import { ChannelPanel } from "../../components/channel/ChannelPanel.js";
 import { buildChannelView } from "../../lib/channel-view.js";
 import { loadSeed } from "../../lib/seed.js";
 import { LAYOUT, TYPE } from "../../lib/theme.js";
+import { IncompletePage } from "../../components/IncompletePage.js";
+import { analysisPeriods, missingFor } from "../../lib/dataset-status.js";
+
+/** 数据集可在运行时导入 / 切换，页面每次请求重新计算 */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "渠道下钻 · 餐饮经营分析",
@@ -16,9 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
+  const missing = missingFor(loadSeed(), "channel");
+  if (missing.length > 0) {
+    return <IncompletePage title="渠道下钻" active="channel" missing={missing} />;
+  }
   const seed = loadSeed();
   const view = buildChannelView();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
+  const periods = analysisPeriods(seed)?.periods ?? [];
 
   return (
     <main className="min-h-screen">

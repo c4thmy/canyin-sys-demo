@@ -9,12 +9,11 @@ import { formatAmount, formatSignedAmount } from "../../../lib/format.js";
 import { loadSeed } from "../../../lib/seed.js";
 import { buildStoreDetailView } from "../../../lib/store-view.js";
 import { LAYOUT, TYPE } from "../../../lib/theme.js";
+import { IncompletePage } from "../../../components/IncompletePage.js";
+import { analysisPeriods, missingFor } from "../../../lib/dataset-status.js";
 
-export const dynamicParams = false;
-
-export function generateStaticParams(): { id: string }[] {
-  return loadSeed().stores.map((store) => ({ id: store.id }));
-}
+/** 数据集可在运行时导入 / 切换，页面每次请求重新计算 */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -22,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const view = buildStoreDetailView(id);
+  const view = missingFor(loadSeed(), "store").length > 0 ? null : buildStoreDetailView(id);
   if (!view) {
     return { title: "门店详情 · 餐饮经营分析" };
   }
@@ -34,12 +33,16 @@ export async function generateMetadata({
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const missing = missingFor(loadSeed(), "store");
+  if (missing.length > 0) {
+    return <IncompletePage title="门店详情" active="same-store" missing={missing} />;
+  }
   const view = buildStoreDetailView(id);
   if (!view) {
     notFound();
   }
   const seed = loadSeed();
-  const periods = [...seed.meta.periods].sort((a, b) => a.id.localeCompare(b.id));
+  const periods = analysisPeriods(seed)?.periods ?? [];
 
   return (
     <main className="min-h-screen">

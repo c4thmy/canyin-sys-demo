@@ -5,8 +5,18 @@ import { RevenueHeader } from "./components/RevenueHeader.js";
 import { formatAmount, formatPercent, formatSignedAmount } from "./lib/format.js";
 import { buildOverview } from "./lib/overview.js";
 import { LAYOUT, TYPE } from "./lib/theme.js";
+import { IncompletePage } from "./components/IncompletePage.js";
+import { analysisPeriods, missingFor } from "./lib/dataset-status.js";
+import { loadSeed } from "./lib/seed.js";
+
+/** 数据集可在运行时导入 / 切换，页面每次请求重新计算 */
+export const dynamic = "force-dynamic";
 
 export default function Page() {
+  const missing = missingFor(loadSeed(), "overview");
+  if (missing.length > 0) {
+    return <IncompletePage title="经营总览" active="overview" missing={missing} />;
+  }
   const view = buildOverview();
   const profitTone =
     view.profitDelta >= 0
